@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <title>DeclarationNav</title>
+
+
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+  <script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+    integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+    crossorigin="anonymous"></script>
+
+    <!-- development version, includes helpful console warnings -->
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <!-- production version, optimized for size and speed
+  <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
+
+
+  <!-- it is fair to say we got no style <link href="style.css" rel="stylesheet"> -->
+  <style>
+  </style>
+</head>
+
+<body>
+  <main role="main">
+
+  <div id="search-app">
+    <search query="{{view.request.GET.q}}"></search>
+  </div>
+
+
+  </main>
+
+  <footer class="text-muted">
+    <div class="container">
+      <p class="float-right">
+        <a href="#">Back to top</a>
+      </p>
+    </div>
+  </footer>
+</body>
+
+{% verbatim %}
+<script type="text/x-template" id="search">
+  <div>
+    <section class="jumbotron text-center">
+      <div class="container">
+        <h1>Declaration Nav</h1>
+        <p class="lead text-muted">Search for people, public bodies and interests</p>
+        <div class="input-group">
+          <input type="text" name="search" v-model="currentQuery" class="form-control" placeholder="Search" v-on:keyup.enter="query" />
+          <div class="input-group-append">
+            <button name="search-btn" class="btn btn-primary" v-on:click.prevent="query">Search</button>
+          </div>
+        </div>
+        <a class="text-right" href="#" v-on:click.prevent="results=[]; currentQuery=''">clear</a>
+      </div>
+    </section>
+
+    <div class="container">
+      <p v-if="results.length">Showing {{results.length}} of {{total_results}} results</p>
+      <declaration-result v-for="result in results" v-bind:result="result" v-bind:key="result.id"></declaration-result>
+      <button v-if="results.length < total_results" class="btn btn-secondary" v-on:click="query">More</button>
+    </div>
+
+  </div>
+</script>
+
+<script type="text/x-template" id="declaration-result-template">
+  <div class="row m-4 border-bottom">
+    <div class="d-flex flex-row">
+      <div class="d-flex flex-column">
+        <h3>{{result.id}} - {{result.member.name}}</h3>
+        <p>In role: {{result.member.role}}</p>
+
+        <h5>Category: {{result.interest.category}}</h5>
+        <p>{{result.interest.description}}</p>
+
+        <p v-if="result.interest.donor">Donor: {{result.interest.donor}}</p>
+
+        <h5>Body {{result.body_received_by.name}}</p></h5>
+        <p><small><a v-bind:href="result.source">{{result.source}}</a></small></p>
+      </div>
+    </div>
+  </div>
+</script>
+{% endverbatim %}
+
+<script>
+  Vue.component('declaration-result', {
+    template: '#declaration-result-template',
+    props: {
+      result: { type: Object },
+    },
+  });
+
+  Vue.component('search', {
+    template: '#search',
+
+    data: function(){
+      return {
+        currentQuery: '',
+        results: [],
+        total_results: 0,
+        next_page_url: undefined,
+      }
+    },
+
+    methods: {
+      query: function(){
+        let ctx = this;
+        let url;
+
+        if (this.next_page_url){
+          url = this.next_page_url;
+        } else {
+          url = "/api/Declarations/?search="+this.currentQuery;
+        }
+
+        $.getJSON(url, function(data){
+          ctx.results = ctx.results.concat(data.results);
+          ctx.total_results = data.count;
+          ctx.next_page_url = data.next;
+          console.log(data);
+        });
+
+      },
+
+    }
+
+  });
+
+  new Vue({
+    el: "#search-app",
+  });
+</script>
+
+</html>
