@@ -1,5 +1,7 @@
 import json
 
+import dateutil.parser
+import re
 from django.core.management.base import BaseCommand
 from django.db import transaction
 
@@ -42,16 +44,30 @@ class Command(BaseCommand):
                     role=declaration_data["member"].get("role"),
                 )
 
+                disclosure_date = None
+                disclosure_date_raw = declaration_data.get("disclosure_date")
+                if disclosure_date_raw:
+                    try:
+                        disclosure_date = dateutil.parser.isoparse(disclosure_date_raw)
+                    except ValueError:
+                        disclosure_date = dateutil.parser.parse(
+                            disclosure_date_raw, dayfirst=True, fuzzy=True
+                        )
+
                 declaration = db.Declaration.objects.create(
                     scrape=scrape,
                     member=member,
                     body_received_by=body_received_by,
-                    disclosure_date=None,  # declaration_data.get('disclosure_date'),
+                    disclosure_date=disclosure_date,
                     fetched=declaration_data["fetched"],
                     source=declaration_data["source"],
                 )
 
                 ## process the interests
+
+                # TODO: Maybe bemove this so we see that bad data breaks?
+                if "interest" not in declaration_data:
+                    continue
 
                 for interest_category in declaration_data["interest"].keys():
                     interest_data = declaration_data["interest"][interest_category]
@@ -60,6 +76,9 @@ class Command(BaseCommand):
                         interest = db.GiftInterest.objects.create(
                             donor=interest_data["donor"], declaration=declaration,
                         )
+                    # TODO: Maybe bemove this so we see that bad data breaks?
+                    else:
+                        continue
 
                     interest.description = interest_data["description"]
                     interest.category = interest_category
