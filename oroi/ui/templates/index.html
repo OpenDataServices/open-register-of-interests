@@ -89,7 +89,7 @@
 
         <p v-if="result.interest.donor">Donor: {{result.interest.donor}}</p>
 
-        <h5>Body {{result.body_received_by.name}}</p></h5>
+        <h5>Body: {{result.body_received_by.name}}</p></h5>
         <p><small><a v-bind:href="result.source">{{result.source}}</a></small></p>
       </div>
     </div>
@@ -114,10 +114,39 @@
         results: [],
         total_results: 0,
         next_page_url: undefined,
+        delayedQueryTimer: undefined,
       }
     },
 
+    watch: {
+      currentQuery: 'reset',
+    },
+
     methods: {
+      reset: function(){
+        this.next_page_url = undefined;
+        this.results = [];
+        this.total_results = 0;
+
+        if (this.currentQuery){
+          this.delayedQuery();
+        }
+      },
+
+      delayedQuery: function(){
+        if (this.delayedQueryTimer){
+          window.clearTimeout(this.delayedQueryTimer);
+        }
+
+        let ctx = this;
+
+        this.delayedQueryTimer = window.setTimeout(function(){
+          ctx.query();
+        }, 1000);
+
+
+      },
+
       query: function(){
         let ctx = this;
         let url;
