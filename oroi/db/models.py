@@ -85,12 +85,25 @@ class Declaration(models.Model):
 
     @property
     def interest_field_indexing(self):
-        # FIXME this isn't going to work
+        # We're flattening the fields into a single Interest for Elasticsearch
+
+        # Initialise all possible fields for any Interest Type
+        all_fields = {}
+
+        for field in (
+            GiftInterest._meta.get_fields()
+            + EmploymentInterest._meta.get_fields()
+            + PropertyInterest._meta.get_fields()
+            + NonProfitInterest._meta.get_fields()
+            + OtherInterest._meta.get_fields()
+        ):
+            all_fields[field.name] = None
 
         try:
             gi = self.giftinterest_set.all().values()[0]
         except IndexError:
             gi = {}
+
         try:
             ei = self.employmentinterest_set.all().values()[0]
         except IndexError:
@@ -101,21 +114,24 @@ class Declaration(models.Model):
         except IndexError:
             pi = {}
 
-        merged = {**dict(gi), **dict(pi), **dict(ei)}
+        try:
+            oi = self.otherinterest_set.all().values()[0]
+        except IndexError:
+            oi = {}
 
-        # print(merged)
+        try:
+            ni = self.nonprofitinterest_set.all().values()[0]
+        except IndexError:
+            ni = {}
 
-        if "description" not in merged:
-            merged["description"] = ""
-
-        if "id" not in merged:
-            merged["id"] = 0
-
-        if "category" not in merged:
-            merged["category"] = ""
-
-        if "donor" not in merged:
-            merged["donor"] = ""
+        merged = {
+            **all_fields,
+            **dict(gi),
+            **dict(pi),
+            **dict(ei),
+            **dict(oi),
+            **dict(ni),
+        }
 
         return dict_to_obj(merged)
 
@@ -144,7 +160,7 @@ class EmploymentInterest(BaseInterest):
     payments = models.CharField(max_length=200)
 
 
-class OtherInterest(BaseException):
+class OtherInterest(BaseInterest):
     pass
 
 
