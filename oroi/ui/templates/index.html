@@ -64,7 +64,7 @@
             <button name="search-btn" class="btn btn-primary" v-on:click.prevent="query">Search</button>
           </div>
         </div>
-        <a class="text-right" href="#" v-on:click.prevent="results=[]; currentQuery=''">clear</a>
+        <a class="text-right" href="#" v-on:click.prevent="reset">clear</a>
       </div>
     </section>
 
@@ -119,24 +119,23 @@
     },
 
     watch: {
-      currentQuery: 'reset',
+      currentQuery: 'delayedQuery',
     },
 
     methods: {
-      reset: function(){
-        this.next_page_url = undefined;
-        this.results = [];
-        this.total_results = 0;
 
-        if (this.currentQuery){
-          this.delayedQuery();
-        }
+      reset: function(){
+        this.total_results = 0;
+        this.results = [];
+        this.next_page_url = null;
       },
 
       delayedQuery: function(){
         if (this.delayedQueryTimer){
           window.clearTimeout(this.delayedQueryTimer);
         }
+
+        this.reset();
 
         let ctx = this;
 
@@ -151,10 +150,17 @@
         let ctx = this;
         let url;
 
+        /* Avoid double querying  - once from typing , once from enter/click search */
+        if (this.delayedQueryTimer){
+          window.clearTimeout(this.delayedQueryTimer);
+        }
+
         if (this.next_page_url){
           url = this.next_page_url;
         } else {
           url = "/api/Declarations/?search="+this.currentQuery;
+          this.results = [];
+          this.total_results = 0;
         }
 
         $.getJSON(url, function(data){
@@ -162,6 +168,9 @@
           ctx.total_results = data.count;
           ctx.next_page_url = data.next;
           console.log(data);
+          if (ctx.total_results === 0){
+            ctx.results = [];
+          }
         });
 
       },
