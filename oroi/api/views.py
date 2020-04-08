@@ -51,6 +51,7 @@ class DeclarationViewSet(DocumentViewSet):
         "member.name",
         "received_by_body.name",
         "member.role",
+        "interest.donor",
     )
 
     # Facets
