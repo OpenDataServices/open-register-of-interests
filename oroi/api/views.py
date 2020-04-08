@@ -12,16 +12,16 @@ import db.models as db
 import elastic.documents as elastic
 
 
-# Database as api
-
-
-class SomethingPaginator(LimitOffsetPagination):
+# Direct database as api example
+#
+#
+class DefaultPaginator(LimitOffsetPagination):
     default_limit = 60
 
 
-class Something(generics.ListAPIView):
-    serializer_class = serializers.SomethingSerializer
-    pagination_class = SomethingPaginator
+class BodiesApiView(generics.ListAPIView):
+    serializer_class = serializers.BodySerializer
+    pagination_class = DefaultPaginator
 
     filter_fields = ("id",)
     filter_backends = (
@@ -30,7 +30,7 @@ class Something(generics.ListAPIView):
     )
 
     def get_queryset(self):
-        return db.Declaration.objects.all()
+        return db.Body.objects.all()
 
 
 # Elasticsearch as api
@@ -39,7 +39,7 @@ class Something(generics.ListAPIView):
 class DeclarationViewSet(DocumentViewSet):
     document = elastic.DeclarationDocument
     serializer_class = serializers.DeclarationDocumentSerializer
-    pagination_class = SomethingPaginator
+    pagination_class = DefaultPaginator
 
     filter_backends = (
         FacetedSearchFilterBackend,

@@ -10,6 +10,6 @@ router = DefaultRouter()
 router.register(r"Declarations", api.views.DeclarationViewSet, basename="declaration")
 
 urlpatterns = [
-    path("something", api.views.Something.as_view(), name="something",),
+    path("Bodies", api.views.BodiesApiView.as_view(), name="bodies",),
     url(r"^", include(router.urls)),
 ]

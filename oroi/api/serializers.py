@@ -5,10 +5,13 @@ import db.models as db
 import elastic.documents as documents
 
 
-class SomethingSerializer(serializers.ModelSerializer):
+class BodySerializer(serializers.ModelSerializer):
     class Meta:
-        model = db.Declaration
-        fields = "__all__"
+        model = db.Body
+        fields = (
+            "id",
+            "name",
+        )
 
 
 class DeclarationDocumentSerializer(DocumentSerializer):
