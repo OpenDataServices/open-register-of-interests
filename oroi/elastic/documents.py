@@ -25,8 +25,6 @@ class DeclarationDocument(Document):
             "id": fields.IntegerField(),
             "name": fields.TextField(),
             "role": fields.TextField(),
-            # Can use ListField?
-            "related_to_str": fields.TextField(),
         },
     )
 
@@ -44,9 +42,12 @@ class DeclarationDocument(Document):
         attr="interest_field_indexing",
         properties={
             "id": fields.IntegerField(),
-            "description": fields.TextField(),
             "category": fields.TextField(),
+            "description": fields.TextField(),
             "donor": fields.TextField(),
+            "use": fields.TextField(),
+            "date": fields.DateField(),
+            "payments": fields.TextField(),
         },
     )
 
