@@ -64,12 +64,13 @@
             <button name="search-btn" class="btn btn-primary" v-on:click.prevent="query">Search</button>
           </div>
         </div>
-        <a class="text-right" href="#" v-on:click.prevent="reset">clear</a>
+        <a class="text-right" href="#" v-on:click.prevent="currentQuery=''; reset()">clear</a>
       </div>
     </section>
 
     <div class="container">
       <p v-if="results.length">Showing {{results.length}} of {{total_results}} results</p>
+      <p v-else>No results</p>
       <declaration-result v-for="result in results" v-bind:result="result" v-bind:key="result.id"></declaration-result>
       <button v-if="results.length < total_results" class="btn btn-secondary" v-on:click="query">More</button>
     </div>
@@ -122,12 +123,47 @@
       currentQuery: 'delayedQuery',
     },
 
+    created: function () {
+        let ctx = this;
+        /* Take the search query from the url query param if it
+         * exists on load */
+        window.onpopstate = function (event) {
+          console.log("state popped");
+          if (event.state && event.state.query) {
+            ctx.currentQuery = event.state.query;
+          }
+        }
+
+        /* Load the search from url query */
+        if (window.location.search){
+          let queryObj = this.urlQueryToObj();
+          this.currentQuery = queryObj.q;
+        } else {
+          this.next_page_url = "/api/Declarations/";
+          this.query();
+        }
+    },
+
     methods: {
 
       reset: function(){
         this.total_results = 0;
         this.results = [];
         this.next_page_url = null;
+      },
+
+      urlQueryToObj: function(){
+        var string = window.location.search;
+        string = string.substr(1);
+        var stringArray = string.split("&");
+        var obj = {};
+
+        for (var i in stringArray) {
+          var keyVal = stringArray[i].split("=");
+          obj[keyVal[0]] = keyVal[1];
+        }
+
+        return obj;
       },
 
       delayedQuery: function(){
@@ -147,8 +183,16 @@
       },
 
       query: function(){
+        if (this.currentQuery.length <= 1 && !this.next_page_url) {
+          return;
+        }
+
+
         let ctx = this;
         let url;
+
+        window.history.pushState({ query: this.currentQuery }, "q", "?q=" + this.currentQuery);
+
 
         /* Avoid double querying  - once from typing , once from enter/click search */
         if (this.delayedQueryTimer){
@@ -163,11 +207,12 @@
           this.total_results = 0;
         }
 
+        console.log(url);
+
         $.getJSON(url, function(data){
           ctx.results = ctx.results.concat(data.results);
           ctx.total_results = data.count;
           ctx.next_page_url = data.next;
-          console.log(data);
           if (ctx.total_results === 0){
             ctx.results = [];
           }
