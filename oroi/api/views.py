@@ -6,6 +6,7 @@ from django_elasticsearch_dsl_drf.filter_backends import (
     FacetedSearchFilterBackend,
     CompoundSearchFilterBackend,
 )
+from elasticsearch_dsl import TermsFacet, DateHistogramFacet, RangeFacet
 
 import api.serializers as serializers
 import db.models as db
@@ -56,5 +57,27 @@ class DeclarationViewSet(DocumentViewSet):
 
     # Facets
     faceted_search_fields = {
-        "person": {"field": "member.name.raw", "enabled": True,},
+        "member": {"field": "member.name.raw", "facet": TermsFacet,},
+        "date": {
+            "field": "disclosure_date",
+            "facet": DateHistogramFacet,
+            "options": {"interval": "year",},
+        },
+        "pages_count": {
+            "field": "pages",
+            "facet": RangeFacet,
+            "options": {
+                "ranges": [
+                    ("<10", (None, 10)),
+                    ("11-20", (11, 20)),
+                    ("20-50", (20, 50)),
+                    (">50", (50, None)),
+                ]
+            },
+        },
     }
+
+
+#    filter_fields = {
+#        'name':  'member.name.raw',
+#    }
