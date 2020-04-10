@@ -10,7 +10,15 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+import environ
 import os
+
+env = environ.Env(
+    # set casting, default value
+    DEBUG=(bool, True),
+    ALLOWED_HOSTS=(list, []),
+    ES_HOST=(str, "localhost:9200"),
+)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -23,9 +31,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = "1sw1=_%2r22ej+6rl1h7pm)=i4zcv5h2!fkw0&r@iq+04z2c^="
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env("DEBUG")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
 
 # Application definition
@@ -85,12 +93,7 @@ WSGI_APPLICATION = "oroi.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.path.join(BASE_DIR, "db.sqlite3"),
-    }
-}
+DATABASES = {"default": env.db(default="sqlite:///db.sqlite3")}
 
 
 # Password validation
@@ -139,7 +142,7 @@ REST_FRAMEWORK = {
 
 # Elasticsearch configuration
 ELASTICSEARCH_DSL = {
-    "default": {"hosts": "localhost:9200"},
+    "default": {"hosts": env("ES_HOST")},
 }
 
 # Name of the Elasticsearch index
