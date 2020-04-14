@@ -16,7 +16,11 @@ def fuzzy_date_parse(date_text):
         try:
             return dateutil.parser.isoparse(date_text)
         except ValueError:
-            return dateutil.parser.parse(date_text, dayfirst=True, fuzzy=True)
+            try:
+                return dateutil.parser.parse(date_text, dayfirst=True, fuzzy=True)
+            # TODO: emit a warning, so we know some data is problematic
+            except ValueError:
+                return None
 
 
 class Command(BaseCommand):
@@ -72,19 +76,35 @@ class Command(BaseCommand):
 
                     ## process the interests
 
-                    for interest_category in ["gift"]:
-                        if any(
-                            key.startswith(interest_category + "_")
-                            for key in declaration_data
-                        ):
+                    for interest_category in [
+                        "gift",
+                        "employment",
+                        "other",
+                        "contract",
+                        "contract_land_licence",
+                        "contract_tenancy",
+                        "land",
+                        "position_directorships",
+                        "position_membership",
+                        "position_nonprofit",
+                        "position_other",
+                        "securities",
+                        "sponsorship",
+                    ]:
+
+                        if declaration_data.get(interest_category+"_description") or declaration_data.get("gift_donor"):
                             if interest_category == "gift":
                                 interest = db.GiftInterest(
-                                    donor=declaration_data.get("gift_donor"),
+                                    donor=declaration_data["gift_donor"],
                                     date=fuzzy_date_parse(
                                         declaration_data.get("gift_date")
                                     ),
                                     reason=declaration_data.get("gift_reason"),
                                 )
+                            elif interest_category == "employment":
+                                interest = db.EmploymentInterest()
+                            else:
+                                interest = db.OtherInterest()
 
                             interest.category = interest_category
                             interest.description = declaration_data.get(
