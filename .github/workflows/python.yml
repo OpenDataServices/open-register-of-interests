@@ -1,0 +1,17 @@
+name: Python checks
+
+on:
+  push:
+    branches: [ dev ]
+  pull_request:
+    branches: [ dev ]
+
+jobs:
+  checker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Black Check
+        uses: jpetrucciani/black-check@19.10b0
+        with:
+          path: ./oroi/
