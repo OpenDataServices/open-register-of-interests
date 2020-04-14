@@ -120,7 +120,7 @@ class Command(BaseCommand):
                         "Error adding declaration %s. Skipping %s"
                         % (declarations_added, e)
                     )
-                    raise e
+                    # raise e
 
         return declarations_added
 
