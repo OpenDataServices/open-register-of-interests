@@ -92,7 +92,9 @@ class Command(BaseCommand):
                         "sponsorship",
                     ]:
 
-                        if declaration_data.get(interest_category+"_description") or declaration_data.get("gift_donor"):
+                        if declaration_data.get(
+                            interest_category + "_description"
+                        ) or declaration_data.get("gift_donor"):
                             if interest_category == "gift":
                                 interest = db.GiftInterest(
                                     donor=declaration_data["gift_donor"],
@@ -109,7 +111,7 @@ class Command(BaseCommand):
                             interest.category = interest_category
                             interest.description = declaration_data.get(
                                 interest_category + "_description"
-                            )
+                            ) or declaration_data.get("gift_reason")
                             interest.declaration = declaration
                             interest.save()
 
