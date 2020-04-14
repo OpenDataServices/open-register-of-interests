@@ -8,7 +8,6 @@ from oroi.urls import urlpatterns as oroi_urls
 
 # test urls/views Adapted from YQN by Michael Wood GPLv2
 class UrlsTests(LiveServerTestCase):
-
     def _test_url(self, path, namespace=False):
         if type(path) is not URLPattern or path.name is None:
             return
