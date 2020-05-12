@@ -23,7 +23,7 @@ class DeclarationDocument(Document):
         attr="member_field_indexing",
         properties={
             "id": fields.IntegerField(),
-            "name": fields.TextField(),
+            "name": fields.KeywordField(),
             "role": fields.TextField(),
         },
     )
@@ -32,9 +32,8 @@ class DeclarationDocument(Document):
         attr="body_field_indexing",
         properties={
             "id": fields.IntegerField(),
-            "name": fields.TextField(),
+            "name": fields.KeywordField(),
             "location": fields.TextField(),
-            #'lat_lng': fields.GeoPointField(),
         },
     )
 
@@ -42,7 +41,7 @@ class DeclarationDocument(Document):
         attr="interest_field_indexing",
         properties={
             "id": fields.IntegerField(),
-            "category": fields.TextField(),
+            "category": fields.KeywordField(),
             "description": fields.TextField(),
             "donor": fields.TextField(),
             "use": fields.TextField(),
@@ -50,6 +49,7 @@ class DeclarationDocument(Document):
             "payments": fields.TextField(),
         },
     )
+
 
     class Django(object):
         model = db.Declaration

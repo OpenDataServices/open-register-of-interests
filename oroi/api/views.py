@@ -5,6 +5,7 @@ from django_elasticsearch_dsl_drf.viewsets import DocumentViewSet
 from django_elasticsearch_dsl_drf.filter_backends import (
     FacetedSearchFilterBackend,
     CompoundSearchFilterBackend,
+    FilteringFilterBackend,
 )
 from elasticsearch_dsl import TermsFacet, DateHistogramFacet, RangeFacet
 
@@ -40,13 +41,14 @@ class BodiesApiView(generics.ListAPIView):
 class DeclarationViewSet(DocumentViewSet):
     document = elastic.DeclarationDocument
     serializer_class = serializers.DeclarationDocumentSerializer
-    pagination_class = DefaultPaginator
 
     filter_backends = (
         FacetedSearchFilterBackend,
         CompoundSearchFilterBackend,
+        FilteringFilterBackend,
     )
 
+    # CompoundSearchFilter ?search= , ?search=field:value
     search_fields = (
         "interest.description",
         "member.name",
@@ -55,29 +57,23 @@ class DeclarationViewSet(DocumentViewSet):
         "interest.donor",
     )
 
-    # Facets
+    # FacetedSearchFilterBackend ?facet=name
     faceted_search_fields = {
-        "member": {"field": "member.name.raw", "facet": TermsFacet,},
+        "member_name": {"field": "member.name", "facet": TermsFacet, "enabled": True},
+        "body_name": {"field": "body_received_by.name", "facet": TermsFacet, "enabled": True },
+        "category": {"field": "interest.category", "facet": TermsFacet, "enabled": True },
         "date": {
             "field": "disclosure_date",
             "facet": DateHistogramFacet,
             "options": {"interval": "year",},
         },
-        "pages_count": {
-            "field": "pages",
-            "facet": RangeFacet,
-            "options": {
-                "ranges": [
-                    ("<10", (None, 10)),
-                    ("11-20", (11, 20)),
-                    ("20-50", (20, 50)),
-                    (">50", (50, None)),
-                ]
-            },
-        },
     }
 
 
-#    filter_fields = {
-#        'name':  'member.name.raw',
-#    }
+    # FilteringFilterBackend ?member_id=N
+    filter_fields = {
+        "member_id" : "member.id",
+        "body_id": "body.id",
+        "member_name": "member.name",
+        "body_name": "body_received_by.name",
+    }
