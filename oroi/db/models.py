@@ -5,6 +5,7 @@ from django_elasticsearch_dsl_drf.wrappers import dict_to_obj
 class Member(models.Model):
     name = models.CharField(max_length=100)
     role = models.CharField(max_length=100, null=True, blank=True)
+    url = models.CharField(max_length=200, null=True, blank=True)
     related_to = models.ManyToManyField("Member", blank=True)
 
     def __str__(self):
@@ -149,6 +150,7 @@ class BaseInterest(models.Model):
 
 class GiftInterest(BaseInterest):
     donor = models.CharField(max_length=100)
+    reason = models.TextField(blank=True, null=True)
     date = models.DateField(help_text="Date gift received", null=True, blank=True)
 
 
