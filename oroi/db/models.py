@@ -86,86 +86,25 @@ class Declaration(models.Model):
 
     @property
     def interest_field_indexing(self):
-        # We're flattening the fields into a single Interest for Elasticsearch
-
-        # Initialise all possible fields for any Interest Type
-        all_fields = {}
-
-        for field in (
-            GiftInterest._meta.get_fields()
-            + EmploymentInterest._meta.get_fields()
-            + PropertyInterest._meta.get_fields()
-            + NonProfitInterest._meta.get_fields()
-            + OtherInterest._meta.get_fields()
-        ):
-            all_fields[field.name] = None
-
-        try:
-            gi = self.giftinterest_set.all().values()[0]
-        except IndexError:
-            gi = {}
-
-        try:
-            ei = self.employmentinterest_set.all().values()[0]
-        except IndexError:
-            ei = {}
-
-        try:
-            pi = self.propertyinterest_set.all().values()[0]
-        except IndexError:
-            pi = {}
-
-        try:
-            oi = self.otherinterest_set.all().values()[0]
-        except IndexError:
-            oi = {}
-
-        try:
-            ni = self.nonprofitinterest_set.all().values()[0]
-        except IndexError:
-            ni = {}
-
-        merged = {
-            **all_fields,
-            **dict(gi),
-            **dict(pi),
-            **dict(ei),
-            **dict(oi),
-            **dict(ni),
-        }
-
-        return dict_to_obj(merged)
+        return dict_to_obj(
+            {
+                "id": self.interest.id,
+                "category": self.interest.category,
+                "description": self.interest.description,
+                "donor": self.interest.donor,
+                "date": self.interest.date,
+            }
+        )
 
 
 class Interest(models.Model):
+    # Common fields
+    # n.b. these are blank,null for ease of updating after obj create
     category = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     declaration = models.ForeignKey(Declaration, on_delete=models.CASCADE)
-
-    class Meta:
-        abstract = True
-
-
-class GiftInterest(BaseInterest):
     donor = models.CharField(max_length=100)
-    reason = models.TextField(blank=True, null=True)
     date = models.DateField(help_text="Date gift received", null=True, blank=True)
-
-
-class PropertyInterest(BaseInterest):
-    use = models.CharField(max_length=200)
-
-
-class EmploymentInterest(BaseInterest):
-    payments = models.CharField(max_length=200)
-
-
-class OtherInterest(BaseInterest):
-    pass
-
-
-class NonProfitInterest(BaseInterest):
-    pass
 
 
 from django.db.models.signals import post_save, post_delete

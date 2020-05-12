@@ -44,9 +44,7 @@ class DeclarationDocument(Document):
             "category": fields.KeywordField(),
             "description": fields.TextField(),
             "donor": fields.TextField(),
-            "use": fields.TextField(),
             "date": fields.DateField(),
-            "payments": fields.TextField(),
         },
     )
 
