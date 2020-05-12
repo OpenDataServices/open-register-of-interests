@@ -32,7 +32,7 @@
   </style>
 </head>
 
-<body>
+<body class="bg-light">
   <main role="main">
 
   <div id="search-app">
@@ -59,20 +59,40 @@
         <h1>Declaration Nav</h1>
         <p class="lead text-muted">Search for people, public bodies and interests</p>
         <div class="input-group">
-          <input type="text" name="search" v-model="currentQuery" class="form-control" placeholder="Search" v-on:keyup.enter="query" />
+          <input type="text" name="search" v-model="queryObj.search" class="form-control" placeholder="Search" v-on:keyup.enter="query" />
           <div class="input-group-append">
             <button name="search-btn" class="btn btn-primary" v-on:click.prevent="query">Search</button>
           </div>
         </div>
-        <a class="text-right" href="#" v-on:click.prevent="currentQuery=''; reset()">clear</a>
+        <div>
+          <span class="badge badge-secondary mr-1" v-for="(item, key, i) in queryObj">{{key}} : {{item|decodeURI}} <a class="text-reset" href="#" v-on:click.prevent="removeFromQuery(key)">&times;</a> </span>
+        </div>
       </div>
     </section>
 
-    <div class="container">
-      <p v-if="results.length">Showing {{results.length}} of {{total_results}} results</p>
-      <p v-else>No results</p>
-      <declaration-result v-for="result in results" v-bind:result="result" v-bind:key="result.id"></declaration-result>
-      <button v-if="results.length < total_results" class="btn btn-secondary" v-on:click="query">More</button>
+    <div class="m-4 d-flex flex-row">
+
+      <div class="d-flex flex-column pl-3 pr-3 bg-light rounded">
+        <h5>Public Bodies</h5>
+        <ul class="list-group">
+          <li class="list-group-item" v-for="body in facets._filter_body_name.body_name.buckets"><a href="#" v-on:click.prevent="queryObj.body_name = body.key; query();"> {{body.key}} ({{body.doc_count}})</a></li>
+        </ul>
+        <hr />
+        <h5>People</h5>
+        <ul class="list-group">
+          <li class="list-group-item" v-for="member in facets._filter_member_name.member_name.buckets">
+            <a href="" v-on:click.prevent="queryObj.member_name = member.key; query();"> {{member.key}} ({{member.doc_count}})</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="flex-fill bg-white rounded p-3 border">
+        <p v-if="results.length">Showing {{results.length}} of {{total_results}} results</p>
+        <p v-else>No results</p>
+        <declaration-result v-for="result in results" v-bind:result="result" v-bind:key="result.id"></declaration-result>
+        <button v-if="results.length < total_results" class="btn btn-secondary" v-on:click="query">More</button>
+      </div>
+
     </div>
 
   </div>
@@ -82,7 +102,7 @@
   <div class="row m-4 border-bottom">
     <div class="d-flex flex-row">
       <div class="d-flex flex-column">
-        <h3>{{result.id}} - {{result.member.name}}</h3>
+        <h3>{{result.member.name}}</h3>
         <p>In role: {{result.member.role}}</p>
 
         <h5>Category: {{result.interest.category}}</h5>
@@ -96,6 +116,15 @@
     </div>
   </div>
 </script>
+
+<script type="text/x-template" id="facets-result-template">
+  <div class="row m-4 border-bottom">
+    <div class="d-flex flex-row">
+    </div>
+  </div>
+</script>
+
+
 {% endverbatim %}
 
 <script>
@@ -111,16 +140,17 @@
 
     data: function(){
       return {
-        currentQuery: '',
         results: [],
+        facets: {},
         total_results: 0,
         next_page_url: undefined,
         delayedQueryTimer: undefined,
+        queryObj: {} ,
       }
     },
 
     watch: {
-      currentQuery: 'delayedQuery',
+      "queryObj.search": 'delayedQuery',
     },
 
     created: function () {
@@ -130,18 +160,22 @@
         window.onpopstate = function (event) {
           console.log("state popped");
           if (event.state && event.state.query) {
-            ctx.currentQuery = event.state.query;
+            ctx.queryObj.search = event.state.query;
           }
         }
 
         /* Load the search from url query */
         if (window.location.search){
-          let queryObj = this.urlQueryToObj();
-          this.currentQuery = queryObj.q;
-        } else {
-          this.next_page_url = "/api/Declarations/";
-          this.query();
+          this.queryObj = this.urlQueryToObj();
         }
+        this.query();
+    },
+
+    filters: {
+      decodeURI : function(val){
+        return decodeURI(val);
+      },
+
     },
 
     methods: {
@@ -150,9 +184,11 @@
         this.total_results = 0;
         this.results = [];
         this.next_page_url = null;
+        this.facets = {};
       },
 
       urlQueryToObj: function(){
+        /* Turns a GET query into an object */
         var string = window.location.search;
         string = string.substr(1);
         var stringArray = string.split("&");
@@ -160,10 +196,35 @@
 
         for (var i in stringArray) {
           var keyVal = stringArray[i].split("=");
-          obj[keyVal[0]] = keyVal[1];
+          if (keyVal[1]){
+            obj[keyVal[0]] = keyVal[1];
+          }
         }
 
         return obj;
+      },
+
+      objToUrlQuery: function (obj){
+        /* Turns an object into GET query */
+        var str = "?";
+
+        for (var key in obj){
+          if (obj[key] === undefined)
+            continue;
+
+          str += key+ "="+obj[key].toString();
+          str += "&";
+        }
+
+        /* Maintain the current hash */
+        str += window.location.hash;
+
+        return str;
+      },
+
+      removeFromQuery: function(key){
+        delete this.queryObj[key];
+        this.query();
       },
 
       delayedQuery: function(){
@@ -178,20 +239,14 @@
         this.delayedQueryTimer = window.setTimeout(function(){
           ctx.query();
         }, 1000);
-
-
       },
 
       query: function(){
-        if (this.currentQuery.length <= 1 && !this.next_page_url) {
-          return;
-        }
-
-
         let ctx = this;
         let url;
 
-        window.history.pushState({ query: this.currentQuery }, "q", "?q=" + this.currentQuery);
+        console.log(this.queryObj);
+        window.history.pushState({ queryObj: this.queryObj }, "q", this.objToUrlQuery(this.queryObj));
 
 
         /* Avoid double querying  - once from typing , once from enter/click search */
@@ -199,20 +254,20 @@
           window.clearTimeout(this.delayedQueryTimer);
         }
 
-        if (this.next_page_url){
-          url = this.next_page_url;
-        } else {
-          url = "/api/Declarations/?search="+this.currentQuery;
-          this.results = [];
-          this.total_results = 0;
-        }
+        url = "/api/Declarations/"+this.objToUrlQuery(this.queryObj);
+        this.results = [];
+        this.total_results = 0;
 
         console.log(url);
 
         $.getJSON(url, function(data){
           ctx.results = ctx.results.concat(data.results);
           ctx.total_results = data.count;
-          ctx.next_page_url = data.next;
+          ctx.facets = data.facets;
+          if (data.next){
+            console.log("next url");
+            console.log(data.next);
+          }
           if (ctx.total_results === 0){
             ctx.results = [];
           }
