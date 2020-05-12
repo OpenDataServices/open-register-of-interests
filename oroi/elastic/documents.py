@@ -50,6 +50,5 @@ class DeclarationDocument(Document):
         },
     )
 
-
     class Django(object):
         model = db.Declaration

@@ -60,8 +60,16 @@ class DeclarationViewSet(DocumentViewSet):
     # FacetedSearchFilterBackend ?facet=name
     faceted_search_fields = {
         "member_name": {"field": "member.name", "facet": TermsFacet, "enabled": True},
-        "body_name": {"field": "body_received_by.name", "facet": TermsFacet, "enabled": True },
-        "category": {"field": "interest.category", "facet": TermsFacet, "enabled": True },
+        "body_name": {
+            "field": "body_received_by.name",
+            "facet": TermsFacet,
+            "enabled": True,
+        },
+        "category": {
+            "field": "interest.category",
+            "facet": TermsFacet,
+            "enabled": True,
+        },
         "date": {
             "field": "disclosure_date",
             "facet": DateHistogramFacet,
@@ -69,10 +77,9 @@ class DeclarationViewSet(DocumentViewSet):
         },
     }
 
-
     # FilteringFilterBackend ?member_id=N
     filter_fields = {
-        "member_id" : "member.id",
+        "member_id": "member.id",
         "body_id": "body.id",
         "member_name": "member.name",
         "body_name": "body_received_by.name",

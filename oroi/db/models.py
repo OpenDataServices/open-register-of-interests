@@ -137,9 +137,7 @@ class Declaration(models.Model):
         return dict_to_obj(merged)
 
 
-class BaseInterest(models.Model):
-    # Common fields
-    # n.b. these are blank,null for ease of updating after obj create
+class Interest(models.Model):
     category = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     declaration = models.ForeignKey(Declaration, on_delete=models.CASCADE)
