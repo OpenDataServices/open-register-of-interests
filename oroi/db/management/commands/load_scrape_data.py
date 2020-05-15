@@ -9,15 +9,15 @@ from django.db import transaction
 
 import db.models as db
 from db.management.spinner import Spinner
-
+from django.utils.timezone import make_aware
 
 def fuzzy_date_parse(date_text):
     if date_text:
         try:
-            return dateutil.parser.isoparse(date_text)
+            return make_aware(dateutil.parser.isoparse(date_text))
         except ValueError:
             try:
-                return dateutil.parser.parse(date_text, dayfirst=True, fuzzy=True)
+                return make_aware(dateutil.parser.parse(date_text, dayfirst=True, fuzzy=True))
             # TODO: emit a warning, so we know some data is problematic
             except ValueError:
                 return None
@@ -51,76 +51,46 @@ class Command(BaseCommand):
             for declaration_data in scrape_db[table]:
                 try:
                     ## create the declaration in the db
+                    # We don't use bulk insert as we need to keep sync with elasticsearch
                     body_received_by, created = db.Body.objects.get_or_create(
-                        name=declaration_data.get("body_received_by") or "Unknown body"
+                        name=declaration_data.get("declared_to", "Unknown body"),
                     )
 
                     member, created = db.Member.objects.get_or_create(
                         name=declaration_data["member_name"],
                         role=declaration_data.get("member_role"),
                         url=declaration_data.get("member_url"),
+                        political_party=declaration_data.get("member_party")
                     )
 
-                    declaration = db.Declaration.objects.create(
+                    db.Declaration.objects.create(
                         scrape=scrape,
                         member=member,
                         body_received_by=body_received_by,
-                        disclosure_date=fuzzy_date_parse(
-                            declaration_data.get("disclosure_date")
+
+                        category=declaration_data.get("interest_type", "uncategorised"),
+                        description=declaration_data['description'],
+                        register_date=fuzzy_date_parse(
+                            declaration_data.get("declared_date")
                         ),
-                        fetched=declaration_data["__last_seen"],
+                        interest_date=fuzzy_date_parse(
+                            declaration_data.get("interest_date")
+                        ),
+
                         source=declaration_data["source"],
+                        donor=declaration_data.get("gift_donor"),
+
+                        fetched=make_aware(declaration_data["__last_seen"]),
                     )
 
                     declarations_added += 1
 
-                    ## process the interests
-
-                    for interest_category in [
-                        "gift",
-                        "employment",
-                        "other",
-                        "contract",
-                        "contract_land_licence",
-                        "contract_tenancy",
-                        "land",
-                        "position_directorships",
-                        "position_membership",
-                        "position_nonprofit",
-                        "position_other",
-                        "securities",
-                        "sponsorship",
-                    ]:
-
-                        if declaration_data.get(
-                            interest_category + "_description"
-                        ) or declaration_data.get("gift_donor"):
-                            if interest_category == "gift":
-                                interest = db.GiftInterest(
-                                    donor=declaration_data["gift_donor"],
-                                    date=fuzzy_date_parse(
-                                        declaration_data.get("gift_date")
-                                    ),
-                                    reason=declaration_data.get("gift_reason"),
-                                )
-                            elif interest_category == "employment":
-                                interest = db.EmploymentInterest()
-                            else:
-                                interest = db.OtherInterest()
-
-                            interest.category = interest_category
-                            interest.description = declaration_data.get(
-                                interest_category + "_description"
-                            ) or declaration_data.get("gift_reason")
-                            interest.declaration = declaration
-                            interest.save()
-
                 except Exception as e:
                     print(
                         "Error adding declaration %s. Skipping %s"
-                        % (declarations_added, e)
+                        % (declaration_data, e)
                     )
-                    # raise e
+                    # Debug raise e
 
         return declarations_added
 
@@ -130,8 +100,8 @@ class Command(BaseCommand):
         spinner = Spinner()
         spinner.start()
 
-        #        with transaction.atomic():
-        declarations_added = self.extact_data()
+        with transaction.atomic():
+            declarations_added = self.extact_data()
 
         spinner.stop()
         print("\nData loaded: %s " % declarations_added, file=self.stdout)

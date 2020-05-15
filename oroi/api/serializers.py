@@ -17,4 +17,5 @@ class BodySerializer(serializers.ModelSerializer):
 class DeclarationDocumentSerializer(DocumentSerializer):
     class Meta:
         document = documents.DeclarationDocument
-        fields = ("id", "source", "fetched", "interest", "member", "body_received_by")
+        # It'd be nice if "__all__" worked
+        fields = ("id", "source", "fetched", "category", "description", "donor", "register_date", "interest_date", "member", "body_received_by", )

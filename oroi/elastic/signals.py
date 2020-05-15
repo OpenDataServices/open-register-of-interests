@@ -34,12 +34,6 @@ def update_document(sender, **kwargs):
         for _instance in instances:
             registry.update(_instance)
 
-    if model_name == "giftinterest":
-        instance = instance.declaration
-        registry.update(instance)
-
-    print(model_name)
-
 
 @receiver(post_delete)
 def delete_document(sender, **kwargs):
@@ -56,14 +50,14 @@ def delete_document(sender, **kwargs):
         return
 
     # If person gets updated on the model then update the doc
-    if model_name == "person":
+    if model_name == "member":
         instances = instance.declaration_set.all()
         for _instance in instances:
             registry.update(_instance)
             # registry.delete(_instance, raise_on_error=False)
 
-    # If council gets updated on the model then update the doc
-    if model_name == "council":
+    # If body gets updated on the model then update the doc
+    if model_name == "body":
         instances = instance.declaration_set.all()
         for _instance in instances:
             registry.update(_instance)

@@ -18,6 +18,11 @@ class DeclarationDocument(Document):
     disclosure_date = fields.DateField(attr="disclosure_date")
     fetched = fields.DateField(attr="fetched")
     source = fields.TextField(attr="source")
+    category = fields.KeywordField(attr="category")
+    description = fields.TextField(attr="description")
+    donor = fields.TextField(attr="donor")
+    register_date = fields.DateField(attr="register_date")
+    interest_date = fields.DateField(attr="interest_date")
 
     member = fields.ObjectField(
         attr="member_field_indexing",
@@ -25,6 +30,8 @@ class DeclarationDocument(Document):
             "id": fields.IntegerField(),
             "name": fields.KeywordField(),
             "role": fields.TextField(),
+            "url": fields.TextField(),
+            "political_party": fields.KeywordField(),
         },
     )
 
@@ -34,17 +41,7 @@ class DeclarationDocument(Document):
             "id": fields.IntegerField(),
             "name": fields.KeywordField(),
             "location": fields.TextField(),
-        },
-    )
-
-    interest = fields.ObjectField(
-        attr="interest_field_indexing",
-        properties={
-            "id": fields.IntegerField(),
-            "category": fields.KeywordField(),
-            "description": fields.TextField(),
-            "donor": fields.TextField(),
-            "date": fields.DateField(),
+            "url": fields.TextField(),
         },
     )
 

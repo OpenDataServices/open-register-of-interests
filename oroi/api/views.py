@@ -50,7 +50,7 @@ class DeclarationViewSet(DocumentViewSet):
 
     # CompoundSearchFilter ?search= , ?search=field:value
     search_fields = (
-        "interest.description",
+        "description",
         "member.name",
         "received_by_body.name",
         "member.role",
@@ -66,12 +66,17 @@ class DeclarationViewSet(DocumentViewSet):
             "enabled": True,
         },
         "category": {
-            "field": "interest.category",
+            "field": "category",
             "facet": TermsFacet,
             "enabled": True,
         },
-        "date": {
-            "field": "disclosure_date",
+        "interest_date": {
+            "field": "interest_date",
+            "facet": DateHistogramFacet,
+            "options": {"interval": "year",},
+        },
+        "register_date": {
+            "field": "register_date",
             "facet": DateHistogramFacet,
             "options": {"interval": "year",},
         },
@@ -83,4 +88,5 @@ class DeclarationViewSet(DocumentViewSet):
         "body_id": "body.id",
         "member_name": "member.name",
         "body_name": "body_received_by.name",
+        "category": "category",
     }
