@@ -11,13 +11,16 @@ import db.models as db
 from db.management.spinner import Spinner
 from django.utils.timezone import make_aware
 
+
 def fuzzy_date_parse(date_text):
     if date_text:
         try:
             return make_aware(dateutil.parser.isoparse(date_text))
         except ValueError:
             try:
-                return make_aware(dateutil.parser.parse(date_text, dayfirst=True, fuzzy=True))
+                return make_aware(
+                    dateutil.parser.parse(date_text, dayfirst=True, fuzzy=True)
+                )
             # TODO: emit a warning, so we know some data is problematic
             except ValueError:
                 return None
@@ -60,26 +63,23 @@ class Command(BaseCommand):
                         name=declaration_data["member_name"],
                         role=declaration_data.get("member_role"),
                         url=declaration_data.get("member_url"),
-                        political_party=declaration_data.get("member_party")
+                        political_party=declaration_data.get("member_party"),
                     )
 
                     db.Declaration.objects.create(
                         scrape=scrape,
                         member=member,
                         body_received_by=body_received_by,
-
                         category=declaration_data.get("interest_type", "uncategorised"),
-                        description=declaration_data['description'],
+                        description=declaration_data["description"],
                         register_date=fuzzy_date_parse(
                             declaration_data.get("declared_date")
                         ),
                         interest_date=fuzzy_date_parse(
                             declaration_data.get("interest_date")
                         ),
-
                         source=declaration_data["source"],
                         donor=declaration_data.get("gift_donor"),
-
                         fetched=make_aware(declaration_data["__last_seen"]),
                     )
 

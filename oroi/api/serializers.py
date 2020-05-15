@@ -18,4 +18,15 @@ class DeclarationDocumentSerializer(DocumentSerializer):
     class Meta:
         document = documents.DeclarationDocument
         # It'd be nice if "__all__" worked
-        fields = ("id", "source", "fetched", "category", "description", "donor", "register_date", "interest_date", "member", "body_received_by", )
+        fields = (
+            "id",
+            "source",
+            "fetched",
+            "category",
+            "description",
+            "donor",
+            "register_date",
+            "interest_date",
+            "member",
+            "body_received_by",
+        )

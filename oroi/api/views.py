@@ -65,11 +65,7 @@ class DeclarationViewSet(DocumentViewSet):
             "facet": TermsFacet,
             "enabled": True,
         },
-        "category": {
-            "field": "category",
-            "facet": TermsFacet,
-            "enabled": True,
-        },
+        "category": {"field": "category", "facet": TermsFacet, "enabled": True,},
         "interest_date": {
             "field": "interest_date",
             "facet": DateHistogramFacet,

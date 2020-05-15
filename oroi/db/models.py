@@ -55,10 +55,13 @@ class Declaration(models.Model):
     category = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     donor = models.CharField(max_length=100, null=True, blank=True)
-    register_date = models.DateField(help_text="Date from register", null=True, blank=True)
-    interest_date = models.DateField(help_text="Date the described interest happened", null=True, blank=True)
+    register_date = models.DateField(
+        help_text="Date from register", null=True, blank=True
+    )
+    interest_date = models.DateField(
+        help_text="Date the described interest happened", null=True, blank=True
+    )
     notes = models.TextField(blank=True, null=True)
-
 
     def __str__(self):
         return self.member.name
@@ -73,7 +76,6 @@ class Declaration(models.Model):
                 # For now just a list of names in a str
                 "url": self.member.url,
                 "political_party": self.member.political_party,
-
             }
         )
 
