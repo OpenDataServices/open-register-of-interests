@@ -78,6 +78,13 @@
           <li class="list-group-item" v-for="body in facets._filter_body_name.body_name.buckets"><a href="#" v-on:click.prevent="queryObj.body_name = body.key; query();"> {{body.key}} ({{body.doc_count}})</a></li>
         </ul>
         <hr />
+        <h5>Categories</h5>
+        <ul class="list-group">
+          <li class="list-group-item" v-for="category in facets._filter_category.category.buckets">
+            <a href="" v-on:click.prevent="queryObj.category = category.key; query();"> {{category.key|capitalise|underscoresToSpace}} ({{category.doc_count}})</a>
+          </li>
+        </ul>
+        <hr />
         <h5>People</h5>
         <ul class="list-group">
           <li class="list-group-item" v-for="member in facets._filter_member_name.member_name.buckets">
@@ -103,15 +110,31 @@
     <div class="d-flex flex-row">
       <div class="d-flex flex-column">
         <h3>{{result.member.name}}</h3>
-        <p>In role: {{result.member.role}}</p>
+        <p>{{result.member.political_party}}</p>
+        <p>{{result.member.role}}</p>
+        <p>{{result.description}}</p>
+        <p v-if="result.register_date">Register date: {{result.register_date|dateString}}</p>
+        <p v-if="result.interest_date">Interest date: {{result.interest_date|dateString}}</p>
+        <p v-if="result.donor">Donor: {{result.donor}}</p>
 
-        <h5>Category: {{result.interest.category}}</h5>
-        <p>{{result.interest.description}}</p>
-
-        <p v-if="result.interest.donor">Donor: {{result.interest.donor}}</p>
-
+        <h5>Category: {{result.category}}</h5>
         <h5>Body: {{result.body_received_by.name}}</p></h5>
-        <p><small><a v-bind:href="result.source">{{result.source}}</a></small></p>
+        <div class="d-flex flex-column" style="font-size: 0.9em">
+          <h6>Links:</h6>
+          <ul>
+            <li><a v-bind:href="result.source" v-bind:title="result.fetched|dateString">Data source </a></li>
+            <li>
+              Search for '{{result.member.name}}' on;
+               <a v-bind:href="'https://duckduckgo.com/?q='+result.member.name">DuckDuckGo</a>
+               <a v-bind:href="'https://google.com/?q='+result.member.name">Google</a>
+               <a v-bind:href="'https://aleph.occrp.org/search?filter%3Acountries=gb&sort=dates%3Adesc&limit=30&q='+result.member.name">OCCRP Aleph</a>
+               <a v-bind:href="'https://publicwhip.org.uk/search.php?query='+result.member.name">ThePublicWhip</a>
+
+               <a v-if="result.source.indexOf('theyworkforyou') > 0 || result.source.indexOf('parliament.uk') > 0 " v-bind:href="'https://www.theyworkforyou.com/search/?q='+result.member.name">TheyWorkForYou</a>
+
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
@@ -171,12 +194,7 @@
         this.query();
     },
 
-    filters: {
-      decodeURI : function(val){
-        return decodeURI(val);
-      },
 
-    },
 
     methods: {
 
@@ -272,11 +290,26 @@
             ctx.results = [];
           }
         });
-
       },
-
     }
+  });
 
+  Vue.filter('decodeURI', function (val) {
+      return decodeURI(val);
+    });
+
+  Vue.filter('capitalise', function (value) {
+      if (!value) return ''
+      value = value.toString()
+      return value.charAt(0).toUpperCase() + value.slice(1)
+    });
+
+  Vue.filter('underscoresToSpace', function (value) {
+    return value.replace("_", " ")
+  });
+
+  Vue.filter('dateString', function (value) {
+    return new Date(value).toString();
   });
 
   new Vue({
