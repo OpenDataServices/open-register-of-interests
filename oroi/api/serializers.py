@@ -8,11 +8,12 @@ import elastic.documents as documents
 class BodySerializer(serializers.ModelSerializer):
     class Meta:
         model = db.Body
-        fields = (
-            "id",
-            "name",
-        )
+        fields = '__all__'
 
+class MemberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = db.Member
+        fields = ("name", "role", "url", "political_party", "num_decs")
 
 class DeclarationDocumentSerializer(DocumentSerializer):
     class Meta:

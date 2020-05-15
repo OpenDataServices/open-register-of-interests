@@ -7,6 +7,7 @@ from django_elasticsearch_dsl_drf.filter_backends import (
     CompoundSearchFilterBackend,
     FilteringFilterBackend,
 )
+from django.db.models import Count
 from elasticsearch_dsl import TermsFacet, DateHistogramFacet, RangeFacet
 
 import api.serializers as serializers
@@ -34,6 +35,13 @@ class BodiesApiView(generics.ListAPIView):
     def get_queryset(self):
         return db.Body.objects.all()
 
+
+class MembersApiView(generics.ListAPIView):
+    serializer_class = serializers.MemberSerializer
+    pagination_class = DefaultPaginator
+
+    def get_queryset(sef):
+        return db.Member.objects.all().order_by("-name")
 
 # Elasticsearch as api
 

@@ -11,5 +11,6 @@ router.register(r"Declarations", api.views.DeclarationViewSet, basename="declara
 
 urlpatterns = [
     path("Bodies", api.views.BodiesApiView.as_view(), name="bodies",),
+    path("Members", api.views.MembersApiView.as_view(), name="members",),
     url(r"^", include(router.urls)),
 ]
