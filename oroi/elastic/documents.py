@@ -18,7 +18,6 @@ class DeclarationDocument(Document):
     disclosure_date = fields.DateField(attr="disclosure_date")
     fetched = fields.DateField(attr="fetched")
     source = fields.TextField(attr="source")
-    category = fields.KeywordField(attr="category")
     description = fields.TextField(attr="description")
     donor = fields.TextField(attr="donor")
     register_date = fields.DateField(attr="register_date")
@@ -28,10 +27,10 @@ class DeclarationDocument(Document):
         attr="member_field_indexing",
         properties={
             "id": fields.IntegerField(),
-            "name": fields.KeywordField(),
+            "name": fields.TextField(),
             "role": fields.TextField(),
             "url": fields.TextField(),
-            "political_party": fields.KeywordField(),
+            "political_party": fields.TextField(),
         },
     )
 
@@ -39,11 +38,15 @@ class DeclarationDocument(Document):
         attr="body_field_indexing",
         properties={
             "id": fields.IntegerField(),
-            "name": fields.KeywordField(),
+            "name": fields.TextField(),
             "location": fields.TextField(),
             "url": fields.TextField(),
         },
     )
+
+    category = fields.KeywordField(attr="category")
+    body_name_key = fields.KeywordField(attr="body_field_indexing.name")
+    member_name_key = fields.KeywordField(attr="member_field_indexing.name")
 
     class Django(object):
         model = db.Declaration

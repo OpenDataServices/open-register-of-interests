@@ -59,12 +59,12 @@ class DeclarationViewSet(DocumentViewSet):
 
     # FacetedSearchFilterBackend ?facet=name
     faceted_search_fields = {
-        "member_name": {"field": "member.name", "facet": TermsFacet, "enabled": True},
-        "body_name": {
-            "field": "body_received_by.name",
+        "member_name": {
+            "field": "member_name_key",
             "facet": TermsFacet,
             "enabled": True,
         },
+        "body_name": {"field": "body_name_key", "facet": TermsFacet, "enabled": True,},
         "category": {"field": "category", "facet": TermsFacet, "enabled": True,},
         "interest_date": {
             "field": "interest_date",
