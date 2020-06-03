@@ -66,7 +66,12 @@ class DeclarationViewSet(DocumentViewSet):
             "enabled": True,
         },
         "body_name": {"field": "body_name_key", "facet": TermsFacet, "enabled": True,},
-        "category": {"field": "category", "facet": TermsFacet, "enabled": True,},
+        "category": {
+            "field": "category",
+            "facet": TermsFacet,
+            "enabled": True,
+            "options": {"size": 50},
+        },
         "interest_date": {
             "field": "interest_date",
             "facet": DateHistogramFacet,
