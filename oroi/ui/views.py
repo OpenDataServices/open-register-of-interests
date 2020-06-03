@@ -115,6 +115,8 @@ class CSVFromQueryDownloadView(View):
         response = StreamingHttpResponse(
             (writer.writerow(row) for row in results), content_type="text/text"
         )
-        response["Content-Disposition"] = 'attachment; filename="declaration-nav-query.csv"'
+        response[
+            "Content-Disposition"
+        ] = 'attachment; filename="declaration-nav-query.csv"'
 
         return response
