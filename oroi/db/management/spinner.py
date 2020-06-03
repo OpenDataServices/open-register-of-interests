@@ -19,13 +19,11 @@ class Spinner(threading.Thread):
         if os.environ.get("TERM") is None:
             return
 
-        os.system("setterm -cursor off")
         while self.signal:
             for char in ["/", "-", "\\", "|"]:
                 sys.stdout.write("\r" + char)
                 sys.stdout.flush()
                 time.sleep(0.25)
-        os.system("setterm -cursor on")
 
     def stop(self):
         self.signal = False
