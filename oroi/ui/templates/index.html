@@ -36,7 +36,7 @@
   <main role="main">
 
   <div id="search-app">
-    <search query="{{view.request.GET.q}}"></search>
+    <search query="{{view.request.GET.search}}"></search>
   </div>
 
 
@@ -53,11 +53,11 @@
 
 {% verbatim %}
 <script type="text/x-template" id="search">
-  <div>
+<div>
     <section class="jumbotron text-center">
       <div class="container">
         <h1>Declaration Nav</h1>
-        <p class="lead text-muted">Search for people, public bodies and interests</p>
+        <p class="lead text-muted">Search declarations of interest made by members of local and national governing bodies</p>
         <div class="input-group">
           <input type="text" name="search" v-model="queryObj.search" class="form-control" placeholder="Search" v-on:keyup.enter="query" />
           <div class="input-group-append">
@@ -65,64 +65,91 @@
           </div>
         </div>
         <div>
-          <span class="badge badge-secondary mr-1" v-for="(item, key, i) in queryObj">{{key}} : {{item|decodeURI}} <a class="text-reset" href="#" v-on:click.prevent="removeFromQuery(key)">&times;</a> </span>
+          <span class="badge badge-secondary mr-1" v-for="(item, key, i) in queryObj" v-if="key != 'facet_size_all'" >{{key|underscoresToSpace}} : {{item|decodeURI|underscoresToSpace}} <a class="text-reset" href="#" v-on:click.prevent="removeFromQuery(key)">&times;</a> </span>
         </div>
       </div>
     </section>
 
-    <div class="m-4 d-flex flex-row">
+    <section>
+      <div class="m-4 row">
+          <!-- facets / aggregates -->
+          <div class="col-2 mt-2">
 
-      <div class="d-flex flex-column pl-3 pr-3 bg-light rounded">
-        <h5>Public Bodies</h5>
-        <ul class="list-group">
-          <li class="list-group-item" v-for="body in facets._filter_body_name.body_name.buckets"><a href="#" v-on:click.prevent="queryObj.body_name = body.key; query();"> {{body.key}} ({{body.doc_count}})</a></li>
-        </ul>
-        <hr />
-        <h5>Categories</h5>
-        <ul class="list-group">
-          <li class="list-group-item" v-for="category in facets._filter_category.category.buckets">
-            <a href="" v-on:click.prevent="queryObj.category = category.key; query();"> {{category.key|capitalise|underscoresToSpace}} ({{category.doc_count}})</a>
-          </li>
-        </ul>
-        <hr />
-        <h5>People</h5>
-        <ul class="list-group">
-          <li class="list-group-item" v-for="member in facets._filter_member_name.member_name.buckets">
-            <a href="" v-on:click.prevent="queryObj.member_name = member.key; query();"> {{member.key}} ({{member.doc_count}})</a>
-          </li>
-        </ul>
+            <div class="d-flex flex-column bg-light rounded">
+              <h5>Bodies</h5>
+              <ul class="list-group">
+                <li class="list-group-item" v-for="body in facets._filter_body_name.body_name.buckets"><a href="#" v-on:click.prevent="queryObj.body_name = body.key; query();"> {{body.key}} ({{body.doc_count}})</a></li>
+                <li v-if="facets._filter_body_name.body_name.buckets.length == 10" class="list-group-item"><a href="" v-on:click.prevent="updateFacetSize('body_name');">Show all</a></li>
+              </ul>
+              <hr />
+              <h5>Categories</h5>
+              <ul class="list-group">
+                <li class="list-group-item" v-for="category in facets._filter_category.category.buckets">
+                  <a href="" v-on:click.prevent="queryObj.category = category.key; query();"> {{category.key|capitalise|underscoresToSpace}} ({{category.doc_count}})</a>
+                </li>
+                <li v-if="facets._filter_category.category.buckets.length == 50" class="list-group-item"><a href="" v-on:click.prevent="updateFacetSize('category');">Show all</a></li>
+              </ul>
+              <hr />
+              <span v-if="queryObj.search">
+                <h5>Members</h5>
+                <ul class="list-group">
+                  <li class="list-group-item" v-for="member in facets._filter_member_name.member_name.buckets">
+                    <a href="" v-on:click.prevent="queryObj.member_name = member.key; query();"> {{member.key}} ({{member.doc_count}})</a>
+                  </li>
+                  <li class="list-group-item" v-if="facets._filter_member_name.member_name.buckets.length == 10"><a href="" v-on:click.prevent="updateFacetSize('member_name');">Show all</a></li>
+                </ul>
+              </span>
+            </div>
+
+          </div>
+          <!-- end facets / aggregates -->
+
+          <!-- results -->
+          <div class="col">
+
+            <div class="d-flex flex-column">
+
+              <div class="row">
+                <p v-if="results.length">Total of {{totalResults}} results</p>
+                <p v-else>No results</p>
+
+                <p class="ml-auto">Download (<a v-bind:href="currentCsvUrl">CSV</a>, <a v-bind:href="currentApiUrl">JSON API</a>)</p>
+              </div>
+
+              <declaration-result v-for="result in results" v-bind:result="result" v-bind:key="result.id"></declaration-result>
+
+              <div class="row">
+                <button v-if="nextPage" class="btn btn-secondary" v-on:click="queryObj.page = nextPage; query(true);" >More results</button>
+              </div>
+
+            </div>
+          </div>
       </div>
+      </section>
 
-      <div class="flex-fill bg-white rounded p-3 border">
-        <p v-if="results.length">Showing {{results.length}} of {{total_results}} results</p>
-        <p v-else>No results</p>
-        <declaration-result v-for="result in results" v-bind:result="result" v-bind:key="result.id"></declaration-result>
-        <button v-if="results.length < total_results" class="btn btn-secondary" v-on:click="query">More</button>
-      </div>
-
-    </div>
-
-  </div>
+</div>
 </script>
 
 <script type="text/x-template" id="declaration-result-template">
-  <div class="row m-4 border-bottom">
+  <div class="row mb-3 p-3 border bg-white rounded">
     <div class="d-flex flex-row">
       <div class="d-flex flex-column">
         <h3>{{result.member.name}}</h3>
-        <p>{{result.member.political_party}}</p>
-        <p>{{result.member.role}}</p>
-        <p>{{result.description}}</p>
-        <p v-if="result.register_date">Register date: {{result.register_date|dateString}}</p>
-        <p v-if="result.interest_date">Interest date: {{result.interest_date|dateString}}</p>
-        <p v-if="result.donor">Donor: {{result.donor}}</p>
+        <p class="mb-0" v-if="result.member.political_party"><strong>Political party:</strong> {{result.member.political_party}}</p>
+        <p class="mb-0" v-if="result.member.role"><strong>In role:</strong> {{result.member.role}}</p>
+        <p class="mb-0" ><strong>Category:</strong> {{result.category|underscoresToSpace}}</p>
+        <p class="mb-0" ><strong>Declared to body:</strong> {{result.body_received_by.name}}</p>
+        <p class="mb-0" v-if="result.register_date"><strong>Register date:</strong> {{result.register_date|dateString}}</p>
+        <p class="mb-0" v-if="result.interest_date"><strong>Interest date:</strong> {{result.interest_date|dateString}}</p>
+        <p class="mb-0" v-if="result.donor"></strong>Donor:</strong> {{result.donor}}</p>
 
-        <h5>Category: {{result.category}}</h5>
-        <h5>Body: {{result.body_received_by.name}}</p></h5>
+        <p class="mt-2"><strong>Description:</strong></p>
+        <p>{{result.description}}</p>
+
         <div class="d-flex flex-column" style="font-size: 0.9em">
           <h6>Links:</h6>
           <ul>
-            <li><a v-bind:href="result.source" v-bind:title="result.fetched|dateString">Data source </a></li>
+            <li><a v-bind:href="result.source" v-bind:title="result.source">Data source (Fetched {{result.fetched|dateString}})</a></li>
             <li>
               Search for '{{result.member.name}}' on;
                <a v-bind:href="'https://duckduckgo.com/?q='+result.member.name">DuckDuckGo</a>
@@ -140,15 +167,15 @@
   </div>
 </script>
 
-<script type="text/x-template" id="facets-result-template">
-  <div class="row m-4 border-bottom">
-    <div class="d-flex flex-row">
-    </div>
-  </div>
-</script>
-
 
 {% endverbatim %}
+
+<script>
+
+var apiUrl = "{% url "api:declaration-list" %}"
+var csvUrl = "{% url "ui:csv-download" %}"
+
+</script>
 
 <script>
   Vue.component('declaration-result', {
@@ -165,10 +192,14 @@
       return {
         results: [],
         facets: {},
-        total_results: 0,
-        next_page_url: undefined,
+        totalResults: 0,
+        resultsStart: 0,
+        resultsEnd: 0,
+        nextPage: undefined,
         delayedQueryTimer: undefined,
-        queryObj: {} ,
+        queryObj: {},
+        currentApiUrl: undefined,
+        currentCsvUrl: undefined,
       }
     },
 
@@ -179,19 +210,25 @@
     created: function () {
         let ctx = this;
         /* Take the search query from the url query param if it
-         * exists on load */
-        window.onpopstate = function (event) {
-          console.log("state popped");
-          if (event.state && event.state.query) {
-            ctx.queryObj.search = event.state.query;
+         * exists */
+        window.onpopstate = function(event) {
+          if (event.state && event.state.queryObj) {
+            ctx.queryObj = event.state.queryObj;
+            ctx.query(true);
           }
         }
 
-        /* Load the search from url query */
+        /* Load the search from url query*/
         if (window.location.search){
-          this.queryObj = this.urlQueryToObj();
+          let urlObj = this.urlQueryToObj(window.location.search);
+          this.queryObj = urlObj;
+
+          /* Update facet size separately to ensure we have an array */
+          this.queryObj.facet_size_all = null;
+          this.updateFacetSize(urlObj.facet_size_all);
         }
-        this.query();
+
+        this.query(true);
     },
 
 
@@ -201,14 +238,14 @@
       reset: function(){
         this.total_results = 0;
         this.results = [];
-        this.next_page_url = null;
+        this.nextPage = null;
         this.facets = {};
       },
 
-      urlQueryToObj: function(){
+      urlQueryToObj: function(url){
         /* Turns a GET query into an object */
-        var string = window.location.search;
-        string = string.substr(1);
+        var string = url.split("?")[1];
+
         var stringArray = string.split("&");
         var obj = {};
 
@@ -218,7 +255,6 @@
             obj[keyVal[0]] = keyVal[1];
           }
         }
-
         return obj;
       },
 
@@ -227,8 +263,16 @@
         var str = "?";
 
         for (var key in obj){
-          if (obj[key] === undefined)
+          if (!obj[key])
             continue;
+
+          /* Unpack arrays */
+          if (Array.isArray(obj[key])){
+            for(var i in obj[key]){
+              str += key + "=" + obj[key][i] + "&";
+            }
+            continue;
+          }
 
           str += key+ "="+obj[key].toString();
           str += "&";
@@ -236,12 +280,26 @@
 
         /* Maintain the current hash */
         str += window.location.hash;
-
         return str;
       },
 
+
       removeFromQuery: function(key){
         delete this.queryObj[key];
+        this.query();
+      },
+
+      updateFacetSize: function(facet){
+        if (!facet){
+          return;
+        }
+
+        if (!this.queryObj.facet_size_all){
+          this.queryObj.facet_size_all = [ facet ];
+        } else {
+          this.queryObj.facet_size_all.push(facet);
+        }
+
         this.query();
       },
 
@@ -259,9 +317,16 @@
         }, 1000);
       },
 
-      query: function(){
+      query: function(paging){
         let ctx = this;
         let url;
+        let queryParams;
+
+        /* Any other change in the query we need to start again from page 0 */
+        if (!paging){
+          delete this.queryObj['page'];
+          this.nextPage = undefined;
+        }
 
         console.log(this.queryObj);
         window.history.pushState({ queryObj: this.queryObj }, "q", this.objToUrlQuery(this.queryObj));
@@ -272,23 +337,26 @@
           window.clearTimeout(this.delayedQueryTimer);
         }
 
-        url = "/api/Declarations/"+this.objToUrlQuery(this.queryObj);
-        this.results = [];
-        this.total_results = 0;
+        queryParams = this.objToUrlQuery(this.queryObj);
 
-        console.log(url);
+        this.currentApiUrl = apiUrl + queryParams;
+        this.currentCsvUrl = csvUrl + queryParams;
 
-        $.getJSON(url, function(data){
-          ctx.results = ctx.results.concat(data.results);
-          ctx.total_results = data.count;
+        $.getJSON(this.currentApiUrl, function(data){
+          ctx.results = data.results;
+          ctx.totalResults = data.count;
+
           ctx.facets = data.facets;
           if (data.next){
-            console.log("next url");
-            console.log(data.next);
+            /* extract the next page number for future use. We want the
+             * querObj to the be ssot on the query state
+             */
+            ctx.nextPage = ctx.urlQueryToObj(data.next).page
           }
-          if (ctx.total_results === 0){
+          if (ctx.totalResults === 0){
             ctx.results = [];
           }
+
         });
       },
     }
@@ -305,7 +373,7 @@
     });
 
   Vue.filter('underscoresToSpace', function (value) {
-    return value.replace("_", " ")
+    return value.replace(/_/g, " ")
   });
 
   Vue.filter('dateString', function (value) {
