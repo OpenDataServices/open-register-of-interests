@@ -149,3 +149,22 @@ ELASTICSEARCH_DSL = {
 ELASTICSEARCH_INDEX_NAMES = {
     "elastic.documents": "test_declarations",
 }
+
+# CSV OUTPUT Settings
+
+# Fields to include in the user csv  data dump
+CSV_USER_DUMP_FIELDS = [
+    "member.name",
+    "description",
+    "fetched",
+    "category",
+    "member.role",
+    "member.url",
+    "member.political_party",
+    "body_received_by.name",
+    "source",
+]
+
+# Where to dump the user csv data dump
+CSV_USER_DUMP_FILE = "/tmp/all_data.csv"
+CSV_USER_DUMP_URL = "/static/" + os.path.basename(CSV_USER_DUMP_FILE)
