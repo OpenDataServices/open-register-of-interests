@@ -12,6 +12,7 @@ from elasticsearch_dsl import TermsFacet, DateHistogramFacet, RangeFacet
 import api.serializers as serializers
 import db.models as db
 import elastic.documents as elastic
+from api.sized_faceted_search_backend import SizedFacetedSearchFilterBackend
 
 
 # Direct database as api example
@@ -43,7 +44,7 @@ class DeclarationViewSet(DocumentViewSet):
     serializer_class = serializers.DeclarationDocumentSerializer
 
     filter_backends = (
-        FacetedSearchFilterBackend,
+        SizedFacetedSearchFilterBackend,
         CompoundSearchFilterBackend,
         FilteringFilterBackend,
     )
