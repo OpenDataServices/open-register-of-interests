@@ -4,4 +4,9 @@ WORKDIR /code
 COPY requirements.txt /code/
 RUN pip install -r requirements.txt
 COPY . /code/
-CMD python /code/oroi/manage.py runserver 0.0.0.0:8001
+CMD sh -c ' \
+    ./manage.py migrate && \
+    ./manage.py search_index --rebuild -f && \
+    ./manage.py csv_user_dump_all && \
+    ./manage.py runserver 0.0.0.0:8001 \
+    '
