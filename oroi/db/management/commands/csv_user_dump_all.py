@@ -14,13 +14,11 @@ class Command(BaseCommand):
     def dump_data(self):
 
         # Make the header fields look nicer
-        header_fields = [
-            key.replace(".", " ") for key in CSVFromQueryDownloadView.csv_keys
-        ]
+        header_fields = [key.replace(".", " ") for key in settings.CSV_USER_DUMP_FIELDS]
 
         # Make a django query compatible field values e.g. "member__name"
         values_fields = [
-            key.replace(".", "__") for key in CSVFromQueryDownloadView.csv_keys
+            key.replace(".", "__") for key in settings.CSV_USER_DUMP_FIELDS
         ]
 
         results = db.Declaration.objects.all().values(*values_fields)
