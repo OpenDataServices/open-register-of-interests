@@ -2,6 +2,14 @@ from django.db import models
 from django_elasticsearch_dsl_drf.wrappers import dict_to_obj
 
 
+# This is the master data model, any changes here may need changes in:
+# 1) [elastic] documents, signals
+# 2) [db] load_scrape_data
+# 3) [api] views, serializers
+# 4) [ui] index
+# 5) [oroi] settings.CSV_USER_DUMP_FIELDS
+
+
 class Member(models.Model):
     name = models.CharField(max_length=100)
     role = models.CharField(max_length=100, null=True, blank=True)

@@ -14,6 +14,8 @@ INDEX.settings(number_of_shards=1, number_of_replicas=1)
 class DeclarationDocument(Document):
     """ Declaration ElasticSearch doc """
 
+    # For CSV export keep these field names in sync with db/models
+
     id = fields.IntegerField(attr="id")
     disclosure_date = fields.DateField(attr="disclosure_date")
     fetched = fields.DateField(attr="fetched")
@@ -45,6 +47,8 @@ class DeclarationDocument(Document):
     )
 
     category = fields.KeywordField(attr="category")
+
+    # Un-nested versions for faster indexing
     body_name_key = fields.KeywordField(attr="body_field_indexing.name")
     member_name_key = fields.KeywordField(attr="member_field_indexing.name")
 
