@@ -17,16 +17,6 @@ class BodySerializer(serializers.ModelSerializer):
 class DeclarationDocumentSerializer(DocumentSerializer):
     class Meta:
         document = documents.DeclarationDocument
-        # It'd be nice if "__all__" worked
-        fields = (
-            "id",
-            "source",
-            "fetched",
-            "category",
-            "description",
-            "donor",
-            "register_date",
-            "interest_date",
-            "member",
-            "body_received_by",
-        )
+        # We don't need to expose these ones as they're for internal use
+        ignore_fields = ("member_name_key", "body_name_key")
+        # All other fields in document will be automatically serialised.
