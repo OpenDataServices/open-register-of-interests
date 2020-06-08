@@ -51,6 +51,7 @@ class DeclarationDocument(Document):
     # Un-nested versions for faster indexing
     body_name_key = fields.KeywordField(attr="body_field_indexing.name")
     member_name_key = fields.KeywordField(attr="member_field_indexing.name")
+    description_key = fields.KeywordField(attr="description")
 
     class Django(object):
         model = db.Declaration

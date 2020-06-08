@@ -91,4 +91,5 @@ class DeclarationViewSet(DocumentViewSet):
         "member_name": "member_name_key",
         "body_name": "body_name_key",
         "category": "category",
+        "description": "description_key",
     }
