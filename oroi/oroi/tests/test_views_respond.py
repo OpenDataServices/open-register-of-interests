@@ -43,4 +43,7 @@ class UrlsTests(LiveServerTestCase):
             self._test_url(path, "api")
 
         for path in ui_urls:
+            # This requires specific test setup
+            if "csv-download" in path.name:
+                continue
             self._test_url(path, "ui")
