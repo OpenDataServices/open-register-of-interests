@@ -6,6 +6,7 @@ from django_elasticsearch_dsl_drf.filter_backends import (
     FacetedSearchFilterBackend,
     CompoundSearchFilterBackend,
     FilteringFilterBackend,
+    OrderingFilterBackend,
 )
 from elasticsearch_dsl import TermsFacet, DateHistogramFacet, RangeFacet
 
@@ -47,6 +48,7 @@ class DeclarationViewSet(DocumentViewSet):
         SizedFacetedSearchFilterBackend,
         CompoundSearchFilterBackend,
         FilteringFilterBackend,
+        OrderingFilterBackend,
     )
 
     # CompoundSearchFilter ?search= , ?search=field:value
@@ -92,4 +94,12 @@ class DeclarationViewSet(DocumentViewSet):
         "body_name": "body_name_key",
         "category": "category",
         "description": "description_key",
+    }
+
+    ordering_fields = {
+        "id": "id",
+        "member_name": "member_name_key",
+        "interest_date": "interest_date",
+        "register_date": "register_date",
+        "fetched": "fetched",
     }
