@@ -78,11 +78,13 @@ class DeclarationViewSet(DocumentViewSet):
             "field": "interest_date",
             "facet": DateHistogramFacet,
             "options": {"interval": "year",},
+            "enabled": True,
         },
         "register_date": {
             "field": "register_date",
             "facet": DateHistogramFacet,
             "options": {"interval": "year",},
+            "enabled": False,
         },
     }
 
@@ -94,6 +96,7 @@ class DeclarationViewSet(DocumentViewSet):
         "body_name": "body_name_key",
         "category": "category",
         "description": "description_key",
+        "interest_date": "interest_date",
     }
 
     ordering_fields = {
