@@ -130,7 +130,8 @@
             <span class="badge badge-dark mr-1" v-for="advancedItemValue in item">{{key|underscoresToSpace}} : {{advancedItemValue|decodeURI|underscoresToSpace}} <a class="text-reset" href="#" v-on:click.prevent="removeAdvancedFilterByKeyValue(key, advancedItemValue)">&times;</a></span>
           </template>
           <template v-else>
-            <span class="badge badge-secondary mr-1" v-if="key != 'facet_size_all'" >{{key|underscoresToSpace}} : {{item|decodeURI|underscoresToSpace}} <a class="text-reset" href="#" v-on:click.prevent="removeFromQuery(key)">&times;</a></span>
+            <span class="badge badge-secondary mr-1" v-if="key != 'facet_size_all' && key.indexOf('range') < 0" >{{key|underscoresToSpace}} : {{item|decodeURI|underscoresToSpace}} <a class="text-reset" href="#" v-on:click.prevent="removeFromQuery(key)">&times;</a></span>
+            <span class="badge badge-secondary mr-1" v-if="key.indexOf('range') > 0" >{{key|underscoresToSpace}} : {{item|decodeURI|dateString('range')}} <a class="text-reset" href="#" v-on:click.prevent="removeFromQuery(key)">&times;</a></span>
           </template>
 
         </template>
@@ -142,8 +143,8 @@
       <div class="m-4 row">
           <!-- facets / aggregates -->
           <div class="col-2 mt-2">
-
             <div class="d-flex flex-column bg-light rounded">
+
               <h5>Bodies</h5>
               <ul class="list-group">
                 <li class="list-group-item" v-for="body in facets._filter_body_name.body_name.buckets"><a href="#" v-on:click.prevent="queryObj.body_name = body.key; query();"> {{body.key}} ({{body.doc_count}})</a></li>
@@ -157,6 +158,16 @@
                 </li>
                 <li v-if="facets._filter_category.category.buckets.length == 50" class="list-group-item"><a href="" v-on:click.prevent="updateFacetSize('category');">Show all</a></li>
               </ul>
+
+              <hr />
+              <h5>Interest Date</h5>
+              <ul class="list-group">
+                <li class="list-group-item" v-for="interest_date in facets._filter_interest_date.interest_date.buckets">
+                  <a href="" v-on:click.prevent="queryObj.interest_date__range = interest_date.key + '__' + (interest_date.key + 31557599999); query();"> {{interest_date.key|dateString('yyyy')}} ({{interest_date.doc_count}})</a>
+                </li>
+                <li class="list-group-item" v-if="facets._filter_interest_date.interest_date.buckets.length == 10"><a href="" v-on:click.prevent="updateFacetSize('interest_date');">Show all</a></li>
+              </ul>
+
               <hr />
               <h5>Members</h5>
               <ul class="list-group">
@@ -165,6 +176,7 @@
                 </li>
                 <li class="list-group-item" v-if="facets._filter_member_name.member_name.buckets.length == 10"><a href="" v-on:click.prevent="updateFacetSize('member_name');">Show all</a></li>
               </ul>
+
             </div>
 
           </div>
@@ -243,6 +255,7 @@
           <option value="member_name">Member name</option>
           <option value="body_name">Body name</option>
           <option value="category">Category</option>
+          <option value="interest_date">Interest date</option>
         </select>
     </div>
 
@@ -250,15 +263,29 @@
         <select class="form-control" v-model="filter">
           <option disabled value="">Select filter type...</option>
           <!-- https://django-elasticsearch-dsl-drf.readthedocs.io/en/latest/filtering_usage_examples.html  -->
-          <option value="contains">Contains exactly</option>
-          <option value="startswith">Starts with exactly</option>
-          <option value="endswith">Ends with exactly</option>
+          <template v-if="field != 'interest_date'">
+            <option value="contains">Contains exactly</option>
+            <option value="startswith">Starts with exactly</option>
+            <option value="endswith">Ends with exactly</option>
+          </template>
+          <template v-else>
+            <option value="range" selected>Range</option>
+          </template>
         </select>
     </div>
 
-    <div class="form-group col">
-        <input type="text" id="contains_text" class="form-control" v-model="value" placeholder="text" />
+    <div class="form-group col" v-if="field != 'interest_date'">
+        <input type="text" class="form-control" v-model="value" placeholder="text" />
     </div>
+
+    <template v-if="field == 'interest_date'">
+      <div class="form-group col">
+        <input type="date" v-model="dateFrom" class="form-control" />
+      </div>
+      <div class="form-group col">
+        <input type="date" v-model="dateTo" class="form-control" />
+      </div>
+    </template>
 
     <div class="form-group col-md-1 mb-5">
       <button type="button" class="btn btn-secondary position-absolute text-monospace" style="right: 0" v-on:keyup.prevent="" v-on:click.prevent="$emit('rm-advanced-filter', filterId)">-</button>
@@ -555,6 +582,8 @@ var csvUrl = "{% url "ui:csv-download" %}"
         field: "",
         filter: "",
         value: "",
+        dateTo: undefined,
+        dateFrom: undefined,
      }
     },
 
@@ -562,12 +591,19 @@ var csvUrl = "{% url "ui:csv-download" %}"
       "field": 'updateObj',
       "filter":'updateObj',
       "value": 'updateObj',
+      "dateTo": 'updateObj',
+      "dateFrom": 'updateObj',
     },
 
     methods: {
       updateObj: function(){
-        if (!this.field || !this.filter || !this.value){
+        if (!this.field || !this.filter || (!this.value && !(this.dateFrom && this.dateTo))){
           return;
+        }
+
+        /* We only deal with date ranges at the moment */
+        if (this.filter == 'range') {
+          this.value = this.dateFrom + "__" + this.dateTo;
         }
 
         let newFilter = {
@@ -579,28 +615,47 @@ var csvUrl = "{% url "ui:csv-download" %}"
        this.$emit("filter-updated", newFilter);
       },
     }
-
-
   });
-
-
 
   Vue.filter('decodeURI', function (val) {
       return decodeURI(val);
-    });
+  });
 
   Vue.filter('capitalise', function (value) {
       if (!value) return ''
       value = value.toString()
       return value.charAt(0).toUpperCase() + value.slice(1)
-    });
+  });
 
   Vue.filter('underscoresToSpace', function (value) {
     return value.replace(/_/g, " ")
   });
 
-  Vue.filter('dateString', function (value) {
-    return new Date(value).toString();
+  Vue.filter('dateString', function (value, format) {
+    /* NB if this gets big lets use one of many many libraries that do this for us */
+    if (format == "range"){
+      let dates = value.split("__");
+
+      dateFrom = new Date(Number(dates[0]));
+      dateTo = new Date(Number(dates[1]));
+
+      return dateFrom.getFullYear() + " - " + dateTo.getFullYear();
+    }
+
+    let date = new Date(value);
+
+    switch(format){
+     case 'yyyy':
+        return date.getFullYear();
+        break;
+
+      case 'range':
+        return
+
+      default:
+        return date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear();
+        break;
+    }
   });
 
   new Vue({
