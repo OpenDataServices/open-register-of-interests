@@ -53,7 +53,7 @@ class Scrape(models.Model):
 
 
 class Declaration(models.Model):
-    scrape = models.ForeignKey(Scrape, on_delete=models.CASCADE)
+    scrape = models.ForeignKey(Scrape, on_delete=models.CASCADE, blank=True, null=True)
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
     body_received_by = models.ForeignKey(Body, on_delete=models.CASCADE)
 

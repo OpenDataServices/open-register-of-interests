@@ -66,8 +66,7 @@ class Command(BaseCommand):
                         political_party=declaration_data.get("member_party"),
                     )
 
-                    db.Declaration.objects.create(
-                        scrape=scrape,
+                    declaration, dec_created = db.Declaration.objects.get_or_create(
                         member=member,
                         body_received_by=body_received_by,
                         category=declaration_data.get("interest_type", "uncategorised"),
@@ -83,7 +82,20 @@ class Command(BaseCommand):
                         fetched=make_aware(declaration_data["__last_seen"]),
                     )
 
-                    declarations_added += 1
+                    if dec_created:
+                        declaration.scrape = scrape
+                        declaration.save()
+
+                        declarations_added += 1
+                    else:
+                        print(
+                            "Skipping duplicate {} from {} on {} [{}]".format(
+                                declaration_data.get("interest_type"),
+                                declaration_data.get("member_name"),
+                                declaration_data.get("declared_date"),
+                                declaration_data.get("source"),
+                            )
+                        )
 
                 except Exception as e:
                     print(
