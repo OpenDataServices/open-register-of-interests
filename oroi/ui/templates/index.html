@@ -1,37 +1,5 @@
-<!doctype html>
-<html lang="en">
-
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="">
-  <title>DeclarationNav</title>
-
-
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-    integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-  <script
-  src="https://code.jquery.com/jquery-3.4.1.min.js"
-  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-  crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-    integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-    crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
-    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
-    crossorigin="anonymous"></script>
-
-    <!-- development version, includes helpful console warnings -->
-  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-  <!-- production version, optimized for size and speed
-  <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
-
-
-  <!-- it is fair to say we got no style <link href="style.css" rel="stylesheet"> -->
-  <style>
-  </style>
-</head>
-
+{% extends "base.html" %}
+{% block content %}
 <body class="bg-light">
 
   <main role="main">
@@ -39,7 +7,6 @@
   <div id="search-app">
     <search></search>
   </div>
-
 
   </main>
 
@@ -52,14 +19,15 @@
   </footer>
 </body>
 
+{# The rest of this is VueJs #}
+
 {% verbatim %}
 <script type="text/x-template" id="search">
 <div>
     <section class="jumbotron text-center">
       <div class="container">
-        <h1>Declaration Nav</h1>
-        <p class="lead text-muted">Search declarations of interest made by members of local and national governing bodies</p>
-
+        <h1 class="display-3">declared.</h1>
+        <p class="lead text-muted">declared. collects declarations of interests, gifts, employment and more from elected members of bodies around the UK</p>
         <ul class="nav nav-tabs" id="myTab" role="tablist">
           <li class="nav-item" role="presentation">
             <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Regular</a>
@@ -147,13 +115,13 @@
 
               <h5>Bodies</h5>
               <ul class="list-group">
-                <li class="list-group-item" v-for="body in facets._filter_body_name.body_name.buckets"><a href="#" v-on:click.prevent="queryObj.body_name = body.key; query();"> {{body.key}} ({{body.doc_count}})</a></li>
+                <li class="list-group-item overflow-hidden" v-for="body in facets._filter_body_name.body_name.buckets"><a href="#" v-on:click.prevent="queryObj.body_name = body.key; query();"> {{body.key}} ({{body.doc_count}})</a></li>
                 <li v-if="facets._filter_body_name.body_name.buckets.length == 10" class="list-group-item"><a href="" v-on:click.prevent="updateFacetSize('body_name');">Show all</a></li>
               </ul>
               <hr />
               <h5>Categories</h5>
               <ul class="list-group">
-                <li class="list-group-item" v-for="category in facets._filter_category.category.buckets">
+                <li class="list-group-item overflow-hidden" v-for="category in facets._filter_category.category.buckets">
                   <a href="" v-on:click.prevent="queryObj.category = category.key; query();"> {{category.key|capitalise|underscoresToSpace}} ({{category.doc_count}})</a>
                 </li>
                 <li v-if="facets._filter_category.category.buckets.length == 50" class="list-group-item"><a href="" v-on:click.prevent="updateFacetSize('category');">Show all</a></li>
@@ -162,7 +130,7 @@
               <hr />
               <h5>Interest Date</h5>
               <ul class="list-group">
-                <li class="list-group-item" v-for="interest_date in facets._filter_interest_date.interest_date.buckets">
+                <li class="list-group-item overflow-hidden" v-for="interest_date in facets._filter_interest_date.interest_date.buckets">
                   <a href="" v-on:click.prevent="queryObj.interest_date__range = interest_date.key + '__' + (interest_date.key + 31557599999); query();"> {{interest_date.key|dateString('yyyy')}} ({{interest_date.doc_count}})</a>
                 </li>
                 <li class="list-group-item" v-if="facets._filter_interest_date.interest_date.buckets.length == 10"><a href="" v-on:click.prevent="updateFacetSize('interest_date');">Show all</a></li>
@@ -209,32 +177,53 @@
 
 <script type="text/x-template" id="declaration-result-template">
   <div class="row mb-3 p-3 border bg-white rounded">
-    <div class="d-flex flex-row">
-      <div class="d-flex flex-column">
-        <h3>{{result.member.name}}</h3>
+    <div class="d-flex flex-row w-100">
+      <div class="d-flex flex-column w-100">
+        <div class="row mb-4">
+          <div class="col">
+            <h4 v-bind:title="'Category: ' + result.category|underscoresToSpace">{{result.category|underscoresToSpace|capitalise}}</h4>
+          </div>
+       </div>
+
+        <div class="row">
+          <div class="col">
+            <p class="lead font-weight-bold">Member: {{result.member.name}}</p>
+          </div>
+
+          <div class="col">
+            <p class="mb-0" v-if="result.member.role"><strong>In role:</strong> {{result.member.role}}</p>
+          </div>
+
+          <div class="col">
+            <p class="mb-0" ><strong>Declared to body:</strong> {{result.body_received_by.name}}</p>
+          </div>
+
+        </div>
+
         <p class="mb-0" v-if="result.member.political_party"><strong>Political party:</strong> {{result.member.political_party}}</p>
-        <p class="mb-0" v-if="result.member.role"><strong>In role:</strong> {{result.member.role}}</p>
-        <p class="mb-0" ><strong>Category:</strong> {{result.category|underscoresToSpace}}</p>
-        <p class="mb-0" ><strong>Declared to body:</strong> {{result.body_received_by.name}}</p>
         <p class="mb-0" v-if="result.register_date"><strong>Register date:</strong> {{result.register_date|dateString}}</p>
         <p class="mb-0" v-if="result.interest_date"><strong>Interest date:</strong> {{result.interest_date|dateString}}</p>
-        <p class="mb-0" v-if="result.donor"></strong>Donor:</strong> {{result.donor}}</p>
+        <p class="mb-0" v-if="result.donor"><strong>Donor:</strong> {{result.donor}}</p>
 
         <p class="mt-2"><strong>Description:</strong></p>
-        <p>{{result.description}}</p>
+        <p class="lead">{{result.description}}</p>
 
         <div class="d-flex flex-column" style="font-size: 0.9em">
           <h6>Links:</h6>
           <ul>
+            <li><a class="text-right" v-bind:href="'?id='+result.id">Link to this entry</a></li>
             <li><a v-bind:href="result.source" v-bind:title="result.source">Data source (Fetched {{result.fetched|dateString}})</a></li>
-            <li>
-              Search for '{{result.member.name}}' on;
-               <a v-bind:href="'https://duckduckgo.com/?q='+result.member.name">DuckDuckGo</a>
-               <a v-bind:href="'https://google.com/?q='+result.member.name">Google</a>
-               <a v-bind:href="'https://aleph.occrp.org/search?filter%3Acountries=gb&sort=dates%3Adesc&limit=30&q='+result.member.name">OCCRP Aleph</a>
-               <a v-bind:href="'https://publicwhip.org.uk/search.php?query='+result.member.name">ThePublicWhip</a>
+            <template v-for="searchValue in [ result.member_name , result.donor ]">
+            </template>
+            <li v-for="extSearchValue in [ result.member.name , result.donor ]" v-if="extSearchValue">
 
-               <a v-if="result.source.indexOf('theyworkforyou') > 0 || result.source.indexOf('parliament.uk') > 0 " v-bind:href="'https://www.theyworkforyou.com/search/?q='+result.member.name">TheyWorkForYou</a>
+              Search for '{{extSearchValue}}' on;
+               <a v-bind:href="'https://duckduckgo.com/?q='+extSearchValue">DuckDuckGo</a>
+               <a v-bind:href="'https://google.com/?q='+extSearchValue">Google</a>
+               <a v-bind:href="'https://aleph.occrp.org/search?filter%3Acountries=gb&sort=dates%3Adesc&limit=30&q='+extSearchValue">OCCRP Aleph</a>
+               <a v-bind:href="'https://publicwhip.org.uk/search.php?query='+extSearchValue">ThePublicWhip</a>
+
+               <a v-if="result.source.indexOf('theyworkforyou') > 0 || result.source.indexOf('parliament.uk') > 0 " v-bind:href="'https://www.theyworkforyou.com/search/?q='+extSearchValue">TheyWorkForYou</a>
 
             </li>
           </ul>
@@ -661,4 +650,4 @@ var csvUrl = "{% url "ui:csv-download" %}"
   });
 </script>
 
-</html>
+{% endblock %}
