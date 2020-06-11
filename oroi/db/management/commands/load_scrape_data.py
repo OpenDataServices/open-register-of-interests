@@ -51,6 +51,7 @@ class Command(BaseCommand):
             tables = scrape_db.tables
 
         declarations_added = 0
+        declarations_failed = 0
 
         for table in tables:
 
@@ -145,6 +146,14 @@ class Command(BaseCommand):
                             declaration.save()
 
                             declarations_added += 1
+                            print(
+                                "Declaration added: {} from {} on {} [{}]".format(
+                                    declaration_data.get("interest_type"),
+                                    declaration_data.get("member_name"),
+                                    declaration_data.get("declared_date"),
+                                    declaration_data.get("source"),
+                                )
+                            )
                         else:
                             print(
                                 "Skipping duplicate {} from {} on {} [{}]".format(
@@ -156,15 +165,20 @@ class Command(BaseCommand):
                             )
 
                     except Exception as e:
+                        declarations_failed += 1
                         print(
-                            "Error adding declaration %s. Skipping %s"
-                            % (declaration_data, e)
+                            "Error adding {} from [{}]\nError: {}\n{}".format(
+                                declaration_data.get("interest_type"),
+                                declaration_data.get("source"),
+                                e,
+                                declaration_data,
+                            )
                         )
                         # Debug raise e
 
             print("Declarations processed: {}".format(len(declarations_seen)))
 
-        return declarations_added
+        return declarations_added, declarations_failed
 
     def handle(self, *args, **options):
         self.options = options
@@ -173,7 +187,12 @@ class Command(BaseCommand):
         spinner.start()
 
         with transaction.atomic():
-            declarations_added = self.extact_data()
+            declarations_added, declarations_failed = self.extact_data()
 
         spinner.stop()
-        print("\nData loaded: %s " % declarations_added, file=self.stdout)
+        print(
+            "\nData loaded: {}\nFailed: {}".format(
+                declarations_added, declarations_failed
+            ),
+            file=self.stdout,
+        )
