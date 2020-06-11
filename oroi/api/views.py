@@ -98,6 +98,7 @@ class DeclarationViewSet(DocumentViewSet):
         "description": "description_key",
         "interest_date": "interest_date",
         "donor": "donor",
+        "id": "id",
     }
 
     # OrderingFilterBackend ?ordering=fetched ascending descending ?ordering=-fetched
