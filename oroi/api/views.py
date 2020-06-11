@@ -57,7 +57,7 @@ class DeclarationViewSet(DocumentViewSet):
         "member.name",
         "received_by_body.name",
         "member.role",
-        "interest.donor",
+        "donor",
     )
 
     # FacetedSearchFilterBackend ?facet=name
@@ -97,6 +97,7 @@ class DeclarationViewSet(DocumentViewSet):
         "category": "category",
         "description": "description_key",
         "interest_date": "interest_date",
+        "donor": "donor",
     }
 
     # OrderingFilterBackend ?ordering=fetched ascending descending ?ordering=-fetched
