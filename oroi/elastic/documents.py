@@ -17,12 +17,11 @@ class DeclarationDocument(Document):
     # For CSV export keep these field names in sync with db/models
 
     id = fields.IntegerField(attr="id")
-    disclosure_date = fields.DateField(attr="disclosure_date")
     fetched = fields.DateField(attr="fetched")
     source = fields.TextField(attr="source")
     description = fields.TextField(attr="description")
     donor = fields.TextField(attr="donor")
-    register_date = fields.DateField(attr="register_date")
+    declared_date = fields.DateField(attr="declared_date", multi=True)
     interest_date = fields.DateField(attr="interest_date")
 
     member = fields.ObjectField(
