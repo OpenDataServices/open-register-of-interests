@@ -128,6 +128,15 @@
               </ul>
 
               <hr />
+              <h5>Year declared</h5>
+              <ul class="list-group">
+                <li class="list-group-item" v-for="declared_date in facets._filter_declared_date.declared_date.buckets">
+                  <a href="" v-on:click.prevent="queryObj.declared_date__range = declared_date.key + '__' + (declared_date.key + 31557599999); query();"> {{declared_date.key|dateString('yyyy')}} ({{declared_date.doc_count}})</a>
+                </li>
+                <li class="list-group-item" v-if="facets._filter_declared_date.declared_date.buckets.length == 10"><a href="" v-on:click.prevent="updateFacetSize('declared_date');">Show all</a></li>
+              </ul>
+
+              <hr />
               <h5>Interest Date</h5>
               <ul class="list-group">
                 <li class="list-group-item overflow-hidden" v-for="interest_date in facets._filter_interest_date.interest_date.buckets">
@@ -195,13 +204,14 @@
           </div>
 
           <div class="col">
-            <p class="mb-0" ><strong>Declared to body:</strong> {{result.body_received_by.name}}</p>
+            <p class="mb-0" ><strong>Declared to:</strong> {{result.body_received_by.name}}</p>
           </div>
 
         </div>
 
         <p class="mb-0" v-if="result.member.political_party"><strong>Political party:</strong> {{result.member.political_party}}</p>
-        <p class="mb-0" v-if="result.register_date"><strong>Register date:</strong> {{result.register_date|dateString}}</p>
+        <p class="mb-0" v-if="result.declared_date"><strong>Registered on:</strong> {{result.declared_date.sort().join(", ")}}</p>
+
         <p class="mb-0" v-if="result.interest_date"><strong>Interest date:</strong> {{result.interest_date|dateString}}</p>
         <p class="mb-0" v-if="result.donor"><strong>Donor:</strong> {{result.donor}}</p>
 

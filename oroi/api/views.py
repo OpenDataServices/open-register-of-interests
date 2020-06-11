@@ -58,6 +58,7 @@ class DeclarationViewSet(DocumentViewSet):
         "received_by_body.name",
         "member.role",
         "donor",
+        "declared_date",
     )
 
     # FacetedSearchFilterBackend ?facet=name
@@ -80,11 +81,11 @@ class DeclarationViewSet(DocumentViewSet):
             "options": {"interval": "year",},
             "enabled": True,
         },
-        "register_date": {
-            "field": "register_date",
+        "declared_date": {
+            "field": "declared_date",
             "facet": DateHistogramFacet,
             "options": {"interval": "year",},
-            "enabled": False,
+            "enabled": True,
         },
     }
 
@@ -99,6 +100,7 @@ class DeclarationViewSet(DocumentViewSet):
         "interest_date": "interest_date",
         "donor": "donor",
         "id": "id",
+        "declared_date": "declared_date"
     }
 
     # OrderingFilterBackend ?ordering=fetched ascending descending ?ordering=-fetched
@@ -106,6 +108,6 @@ class DeclarationViewSet(DocumentViewSet):
         "id": "id",
         "member_name": "member_name_key",
         "interest_date": "interest_date",
-        "register_date": "register_date",
+        "declared_date": "declared_date",
         "fetched": "fetched",
     }
