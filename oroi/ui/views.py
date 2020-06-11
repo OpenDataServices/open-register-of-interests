@@ -2,8 +2,10 @@ import csv
 
 from django.http import StreamingHttpResponse, HttpResponseRedirect
 from django.views import View
+from django.views.generic.base import TemplateView
 
 from api.views import DeclarationViewSet
+from db import models as db
 
 from django.conf import settings
 
@@ -120,3 +122,13 @@ class CSVFromQueryDownloadView(View):
         ] = 'attachment; filename="declaration-nav-query.csv"'
 
         return response
+
+
+class HomeView(TemplateView):
+    template_name = "home.html"
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context['bodies'] = db.Body.objects.all()
+        return context

@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<body>
+  <main role="main">
+    <div class="jumbotron">
+      <div class="container text-center">
+        <h1 class="display-3">declared.</h1>
+        <p class="text-muted">declared. collects declarations of interests, gifts, employment and more from elected members of bodies around the UK</p>
+        <form method="GET" action="{% url 'ui:search' %}" >
+
+              <div class="input-group">
+                <input type="text" name="search" class="form-control form-control-lg" placeholder="Search for people, public bodies, and interests." />
+                <div class="input-group-append">
+                  <input type="submit" class="btn btn-primary btn-lg" value="Search" />
+                </div>
+              </div>
+
+          </div>
+
+        </form>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="col-md-4">
+          <h2>Download</h2>
+          <p>Download the entire dataset</p>
+          <p><a class="btn btn-secondary btn-sm" href="{% url 'ui:csv-download' %}">CSV Download &raquo;</a></p>
+          <p><a class="btn btn-secondary btn-sm" href="{% url 'api:declaration-list' %}">JSON API &raquo;</a></p>
+        </div>
+        <div class="col-md-4">
+          <h2>Explore</h2>
+          <p>Use the search box above to explore the data set</p>
+          <p><a class="btn btn-secondary btn-sm" href="{% url 'ui:search' %}" role="button">Explore &raquo;</a></p>
+        </div>
+        <div class="col-md-4">
+          <h2>About</h2>
+          <p>declared. currently includes data we gathered from:</p>
+          {% for body in bodies %}
+          <p class="mb-0">{{body.name}}</p>
+          {% endfor %}
+        </div>
+      </div>
+
+      <hr>
+    </div> <!-- /container -->
+
+  </main>
+
+  <footer class="container">
+    <p>
+      <a href="https://github.com/OpenDataServices/open-register-of-interests/">declared.</a> is operated by <a
+        href="https://www.opendemocracy.net/">openDemocracy</a>, built by <a href="https://opendataservices.coop">Open Data
+        Services</a>, supported by <a href="https://www.nesta.org.uk/">Nesta</a>
+      </p>
+  </footer>
+
+</body>
+{% endblock %}
