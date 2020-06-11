@@ -99,6 +99,7 @@ class DeclarationViewSet(DocumentViewSet):
         "interest_date": "interest_date",
     }
 
+    # OrderingFilterBackend ?ordering=fetched ascending descending ?ordering=-fetched
     ordering_fields = {
         "id": "id",
         "member_name": "member_name_key",
