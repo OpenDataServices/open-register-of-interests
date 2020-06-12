@@ -128,7 +128,7 @@
               </ul>
 
               <hr />
-              <h5>Year declared</h5>
+              <h5>Declared Year</h5>
               <ul class="list-group">
                 <li class="list-group-item" v-for="declared_date in facets._filter_declared_date.declared_date.buckets">
                   <a href="" v-on:click.prevent="queryObj.declared_date__range = declared_date.key + '__' + (declared_date.key + 31557599999); query();"> {{declared_date.key|dateString('yyyy')}} ({{declared_date.doc_count}})</a>
@@ -137,7 +137,7 @@
               </ul>
 
               <hr />
-              <h5>Interest Date</h5>
+              <h5>Interest Year</h5>
               <ul class="list-group">
                 <li class="list-group-item overflow-hidden" v-for="interest_date in facets._filter_interest_date.interest_date.buckets">
                   <a href="" v-on:click.prevent="queryObj.interest_date__range = interest_date.key + '__' + (interest_date.key + 31557599999); query();"> {{interest_date.key|dateString('yyyy')}} ({{interest_date.doc_count}})</a>
