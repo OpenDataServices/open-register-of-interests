@@ -15,12 +15,10 @@ from django.utils.timezone import make_aware
 def fuzzy_date_parse(date_text):
     if date_text:
         try:
-            return make_aware(dateutil.parser.isoparse(date_text))
+            return dateutil.parser.isoparse(date_text)
         except ValueError:
             try:
-                return make_aware(
-                    dateutil.parser.parse(date_text, dayfirst=True, fuzzy=True)
-                )
+                return dateutil.parser.parse(date_text, dayfirst=True, fuzzy=True)
             # TODO: emit a warning, so we know some data is problematic
             except ValueError:
                 return None
@@ -137,11 +135,11 @@ class Command(BaseCommand):
                             ),
                             source=declaration_data["source"],
                             donor=declaration_data.get("interest_from"),
-                            fetched=make_aware(declaration_data["__last_seen"]),
                         )
 
                         declarations_seen.append(declaration_data)
                         if dec_created:
+                            declaration.fetched = make_aware(declaration_data["__last_seen"])
                             declaration.scrape = scrape
                             declaration.save()
 
