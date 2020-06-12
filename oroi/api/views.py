@@ -58,7 +58,6 @@ class DeclarationViewSet(DocumentViewSet):
         "received_by_body.name",
         "member.role",
         "donor",
-        "declared_date",
     )
 
     # FacetedSearchFilterBackend ?facet=name
