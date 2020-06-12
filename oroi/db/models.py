@@ -13,7 +13,7 @@ from django_elasticsearch_dsl_drf.wrappers import dict_to_obj
 
 class Member(models.Model):
     name = models.CharField(max_length=100)
-    role = models.CharField(max_length=100, null=True, blank=True)
+    role = models.CharField(max_length=500, null=True, blank=True)
     url = models.URLField(null=True, blank=True)
     political_party = models.CharField(max_length=200, blank=True, null=True)
 
