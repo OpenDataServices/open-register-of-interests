@@ -210,7 +210,9 @@
         </div>
 
         <p class="mb-0" v-if="result.member.political_party"><strong>Political party:</strong> {{result.member.political_party}}</p>
-        <p class="mb-0" v-if="result.declared_date"><strong>Registered on:</strong> {{result.declared_date.sort().join(", ")}}</p>
+        <p class="mb-0" v-if="result.declared_date"><strong>Declared on:</strong>
+          <template v-for="(dDate, i) in result.declared_date.sort()">{{dDate|dateString}}<template v-if="result.declared_date.length -1 != i">,</template></template>
+        </p>
 
         <p class="mb-0" v-if="result.interest_date"><strong>Interest date:</strong> {{result.interest_date|dateString}}</p>
         <p class="mb-0" v-if="result.donor"><strong>Donor:</strong> {{result.donor}}</p>
