@@ -92,8 +92,8 @@ WSGI_APPLICATION = "oroi.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-
-DATABASES = {"default": env.db(default="sqlite:///db.sqlite3")}
+# Note we only support Postgresql as we use an ArrayField db/models.py
+DATABASES = {"default": env.db(default="psql://test:test@localhost/oroi")}
 
 
 # Password validation
