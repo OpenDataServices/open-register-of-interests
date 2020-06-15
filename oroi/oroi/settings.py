@@ -128,6 +128,23 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 
+
+# Log to the console
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'WARNING',
+    },
+}
+
+
 # Django Rest Framework
 
 REST_FRAMEWORK = {

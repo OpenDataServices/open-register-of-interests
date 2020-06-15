@@ -4,3 +4,4 @@ django-filter
 django-environ
 dataset
 psycopg2
+gunicorn

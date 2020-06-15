@@ -10,5 +10,5 @@ CMD sh -c ' \
     ./manage.py csv_user_dump_all && \
     mkdir -p ui/static/ && \
     mv /tmp/all_data.csv ui/static && \
-    ./manage.py runserver 0.0.0.0:8001 \
+    gunicorn --workers 2 --bind 0.0.0.0:8001 oroi.oroi.wsgi:application \
     '
