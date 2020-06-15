@@ -640,7 +640,7 @@ var csvUrl = "{% url "ui:csv-download" %}"
         break;
 
       default:
-        return date.getDate() + "/" + date.getMonth() + "/" + date.getFullYear();
+        return date.getDate() + "/" + (date.getMonth()+1) + "/" + date.getFullYear();
         break;
     }
   });
