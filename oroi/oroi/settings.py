@@ -18,6 +18,7 @@ env = environ.Env(
     DEBUG=(bool, True),
     ALLOWED_HOSTS=(list, []),
     ES_HOST=(str, "localhost:9200"),
+    STATIC_ROOT=(str, ""),
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -127,6 +128,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = "/static/"
+STATIC_ROOT = env("STATIC_ROOT")
 
 
 # Log to the console
