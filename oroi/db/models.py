@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 from django_elasticsearch_dsl_drf.wrappers import dict_to_obj
 
 
@@ -12,7 +13,7 @@ from django_elasticsearch_dsl_drf.wrappers import dict_to_obj
 
 class Member(models.Model):
     name = models.CharField(max_length=100)
-    role = models.CharField(max_length=100, null=True, blank=True)
+    role = models.CharField(max_length=500, null=True, blank=True)
     url = models.URLField(null=True, blank=True)
     political_party = models.CharField(max_length=200, blank=True, null=True)
 
@@ -53,18 +54,21 @@ class Scrape(models.Model):
 
 
 class Declaration(models.Model):
-    scrape = models.ForeignKey(Scrape, on_delete=models.CASCADE)
+    scrape = models.ForeignKey(Scrape, on_delete=models.CASCADE, blank=True, null=True)
     member = models.ForeignKey(Member, on_delete=models.CASCADE)
     body_received_by = models.ForeignKey(Body, on_delete=models.CASCADE)
 
-    disclosure_date = models.DateField(blank=True, null=True)
     source = models.URLField()
     fetched = models.DateTimeField(blank=True, null=True)
     category = models.CharField(max_length=100, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
-    donor = models.CharField(max_length=100, null=True, blank=True)
-    register_date = models.DateField(
-        help_text="Date from register", null=True, blank=True
+    donor = models.CharField(max_length=500, null=True, blank=True)
+    declared_date = ArrayField(
+        models.DateField(
+            help_text="Date(s) the interest was declared", null=True, blank=True
+        ),
+        null=True,
+        blank=True,
     )
     interest_date = models.DateField(
         help_text="Date the described interest happened", null=True, blank=True

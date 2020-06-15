@@ -15,12 +15,10 @@ from django.utils.timezone import make_aware
 def fuzzy_date_parse(date_text):
     if date_text:
         try:
-            return make_aware(dateutil.parser.isoparse(date_text))
+            return dateutil.parser.isoparse(date_text)
         except ValueError:
             try:
-                return make_aware(
-                    dateutil.parser.parse(date_text, dayfirst=True, fuzzy=True)
-                )
+                return dateutil.parser.parse(date_text, dayfirst=True, fuzzy=True)
             # TODO: emit a warning, so we know some data is problematic
             except ValueError:
                 return None
@@ -41,6 +39,9 @@ class Command(BaseCommand):
             help="A list of tables to load from the scrape db. If empty we load all tables.",
         )
 
+    def get_by_declaration_id(self, table, declaration_id):
+        return table.find(declaration_id=declaration_id)
+
     def extact_data(self):
         scrape_db = dataset.connect(self.options["scrape-db-uri"][0])
         tables = self.options["tables"]
@@ -48,51 +49,134 @@ class Command(BaseCommand):
             tables = scrape_db.tables
 
         declarations_added = 0
+        declarations_failed = 0
 
         for table in tables:
-            scrape = db.Scrape.objects.create()
+
+            db_table = scrape_db[table]
+
+            declarations_seen = []
+
             for declaration_data in scrape_db[table]:
-                try:
-                    ## create the declaration in the db
-                    # We don't use bulk insert as we need to keep sync with elasticsearch
-                    body_received_by, created = db.Body.objects.get_or_create(
-                        name=declaration_data.get("declared_to", "Unknown body"),
-                    )
 
-                    member, created = db.Member.objects.get_or_create(
-                        name=declaration_data["member_name"],
-                        role=declaration_data.get("member_role"),
-                        url=declaration_data.get("member_url"),
-                        political_party=declaration_data.get("member_party"),
-                    )
-
-                    db.Declaration.objects.create(
-                        scrape=scrape,
-                        member=member,
-                        body_received_by=body_received_by,
-                        category=declaration_data.get("interest_type", "uncategorised"),
-                        description=declaration_data["description"],
-                        register_date=fuzzy_date_parse(
-                            declaration_data.get("declared_date")
-                        ),
-                        interest_date=fuzzy_date_parse(
-                            declaration_data.get("interest_date")
-                        ),
-                        source=declaration_data["source"],
-                        donor=declaration_data.get("gift_donor"),
-                        fetched=make_aware(declaration_data["__last_seen"]),
-                    )
-
-                    declarations_added += 1
-
-                except Exception as e:
+                if declaration_data in declarations_seen:
                     print(
-                        "Error adding declaration %s. Skipping %s"
-                        % (declaration_data, e)
+                        "Skipping, already processed: {}, '{}' from {}".format(
+                            declaration_data.get("member_name"),
+                            declaration_data.get("interest_type"),
+                            declaration_data.get("declared_date"),
+                        )
                     )
-                    # Debug raise e
 
-        return declarations_added
+                else:
+
+                    # Get everything with the same declaration_id (same person, source and interest_type)
+                    declaration_group = self.get_by_declaration_id(
+                        db_table, declaration_data.get("declaration_id")
+                    )
+
+                    declared_date = fuzzy_date_parse(
+                        declaration_data.get("declared_date")
+                    )
+                    declared_on_dates = {declared_date}
+
+                    for dec_match in declaration_group:
+
+                        if dec_match in declarations_seen:
+                            print(
+                                "Skipping, already processed: {}, '{}' from {}".format(
+                                    dec_match.get("member_name"),
+                                    dec_match.get("interest_type"),
+                                    dec_match.get("declared_date"),
+                                )
+                            )
+
+                        else:
+
+                            if dec_match.get("interest_hash") == declaration_data.get(
+                                "interest_hash"
+                            ):
+                                also_declared_date = fuzzy_date_parse(
+                                    dec_match.get("declared_date")
+                                )
+
+                                if declared_date != also_declared_date:
+                                    # Declared the same interest on a different date, use this to collapse results
+                                    declared_on_dates.add(also_declared_date)
+
+                                    # Add it to 'seen' so it doesn't get processed again
+                                    declarations_seen.append(dec_match)
+
+                    try:
+                        scrape = db.Scrape.objects.create()
+                        ## create the declaration in the db
+                        # We don't use bulk insert as we need to keep sync with elasticsearch
+                        declared_to, created = db.Body.objects.get_or_create(
+                            name=declaration_data.get("declared_to", "Unknown body"),
+                        )
+
+                        member, created = db.Member.objects.get_or_create(
+                            name=declaration_data["member_name"],
+                            role=declaration_data.get("member_role"),
+                            url=declaration_data.get("member_url"),
+                            political_party=declaration_data.get("member_party"),
+                        )
+
+                        declaration, dec_created = db.Declaration.objects.get_or_create(
+                            member=member,
+                            body_received_by=declared_to,
+                            category=declaration_data.get(
+                                "interest_type", "uncategorised"
+                            ),
+                            description=declaration_data["description"],
+                            declared_date=list(declared_on_dates),
+                            interest_date=fuzzy_date_parse(
+                                declaration_data.get("interest_date")
+                            ),
+                            source=declaration_data["source"],
+                            donor=declaration_data.get("interest_from"),
+                        )
+
+                        declarations_seen.append(declaration_data)
+                        if dec_created:
+                            declaration.fetched = make_aware(declaration_data["__last_seen"])
+                            declaration.scrape = scrape
+                            declaration.save()
+
+                            declarations_added += 1
+                            print(
+                                "Declaration added: {} from {} on {} [{}]".format(
+                                    declaration_data.get("interest_type"),
+                                    declaration_data.get("member_name"),
+                                    declaration_data.get("declared_date"),
+                                    declaration_data.get("source"),
+                                )
+                            )
+                        else:
+                            print(
+                                "Skipping duplicate {} from {} on {} [{}]".format(
+                                    declaration_data.get("interest_type"),
+                                    declaration_data.get("member_name"),
+                                    declaration_data.get("declared_date"),
+                                    declaration_data.get("source"),
+                                )
+                            )
+
+                    except Exception as e:
+                        declarations_failed += 1
+                        print(
+                            "Error adding {} from [{}]\nError: {}\n{}".format(
+                                declaration_data.get("interest_type"),
+                                declaration_data.get("source"),
+                                e,
+                                declaration_data,
+                            )
+                        )
+                        # Debug raise e
+
+            print("Declarations processed: {}".format(len(declarations_seen)))
+
+        return declarations_added, declarations_failed
 
     def handle(self, *args, **options):
         self.options = options
@@ -101,7 +185,12 @@ class Command(BaseCommand):
         spinner.start()
 
         with transaction.atomic():
-            declarations_added = self.extact_data()
+            declarations_added, declarations_failed = self.extact_data()
 
         spinner.stop()
-        print("\nData loaded: %s " % declarations_added, file=self.stdout)
+        print(
+            "\nData loaded: {}\nFailed: {}".format(
+                declarations_added, declarations_failed
+            ),
+            file=self.stdout,
+        )

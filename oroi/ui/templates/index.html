@@ -128,7 +128,16 @@
               </ul>
 
               <hr />
-              <h5>Interest Date</h5>
+              <h5>Declared Year</h5>
+              <ul class="list-group">
+                <li class="list-group-item" v-for="declared_date in facets._filter_declared_date.declared_date.buckets">
+                  <a href="" v-on:click.prevent="queryObj.declared_date__range = declared_date.key + '__' + (declared_date.key + 31557599999); query();"> {{declared_date.key|dateString('yyyy')}} ({{declared_date.doc_count}})</a>
+                </li>
+                <li class="list-group-item" v-if="facets._filter_declared_date.declared_date.buckets.length == 10"><a href="" v-on:click.prevent="updateFacetSize('declared_date');">Show all</a></li>
+              </ul>
+
+              <hr />
+              <h5>Interest Year</h5>
               <ul class="list-group">
                 <li class="list-group-item overflow-hidden" v-for="interest_date in facets._filter_interest_date.interest_date.buckets">
                   <a href="" v-on:click.prevent="queryObj.interest_date__range = interest_date.key + '__' + (interest_date.key + 31557599999); query();"> {{interest_date.key|dateString('yyyy')}} ({{interest_date.doc_count}})</a>
@@ -195,13 +204,16 @@
           </div>
 
           <div class="col">
-            <p class="mb-0" ><strong>Declared to body:</strong> {{result.body_received_by.name}}</p>
+            <p class="mb-0" ><strong>Declared to:</strong> {{result.body_received_by.name}}</p>
           </div>
 
         </div>
 
         <p class="mb-0" v-if="result.member.political_party"><strong>Political party:</strong> {{result.member.political_party}}</p>
-        <p class="mb-0" v-if="result.register_date"><strong>Register date:</strong> {{result.register_date|dateString}}</p>
+        <p class="mb-0" v-if="result.declared_date"><strong>Declared on:</strong>
+          <template v-for="(dDate, i) in result.declared_date.sort()">{{dDate|dateString}}<template v-if="result.declared_date.length -1 != i">,</template></template>
+        </p>
+
         <p class="mb-0" v-if="result.interest_date"><strong>Interest date:</strong> {{result.interest_date|dateString}}</p>
         <p class="mb-0" v-if="result.donor"><strong>Donor:</strong> {{result.donor}}</p>
 
@@ -246,6 +258,7 @@
           <option value="category">Category</option>
           <option value="role">Role</option>
           <option value="interest_date">Interest date</option>
+          <option value="declared_date">Declared date</option>
         </select>
     </div>
 
@@ -253,7 +266,7 @@
         <select class="form-control" v-model="filter">
           <option disabled value="">Select filter type...</option>
           <!-- https://django-elasticsearch-dsl-drf.readthedocs.io/en/latest/filtering_usage_examples.html  -->
-          <template v-if="field != 'interest_date'">
+          <template v-if="field.indexOf('_date') < 0">
             <option value="contains">Contains exactly</option>
             <option value="startswith">Starts with exactly</option>
             <option value="endswith">Ends with exactly</option>
@@ -264,11 +277,11 @@
         </select>
     </div>
 
-    <div class="form-group col" v-if="field != 'interest_date'">
+    <div class="form-group col" v-if="field.indexOf('_date') < 0">
         <input type="text" class="form-control" v-model="value" placeholder="text" />
     </div>
 
-    <template v-if="field == 'interest_date'">
+    <template v-if="field.indexOf('_date') > 0">
       <div class="form-group col">
         <input type="date" v-model="dateFrom" class="form-control" />
       </div>
