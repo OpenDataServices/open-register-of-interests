@@ -622,6 +622,9 @@ var csvUrl = "{% url "ui:csv-download" %}"
   });
 
   Vue.filter('dateString', function (value, format) {
+    if (!value){
+      return "";
+    }
     /* NB if this gets big lets use one of many many libraries that do this for us */
     if (format == "range"){
       let dates = value.split("__");
