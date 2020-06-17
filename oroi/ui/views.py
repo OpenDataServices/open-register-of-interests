@@ -130,5 +130,5 @@ class HomeView(TemplateView):
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context['bodies'] = db.Body.objects.all()
+        context["bodies"] = db.Body.objects.all()
         return context

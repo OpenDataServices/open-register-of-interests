@@ -139,7 +139,9 @@ class Command(BaseCommand):
 
                         declarations_seen.append(declaration_data)
                         if dec_created:
-                            declaration.fetched = make_aware(declaration_data["__last_seen"])
+                            declaration.fetched = make_aware(
+                                declaration_data["__last_seen"]
+                            )
                             declaration.scrape = scrape
                             declaration.save()
 
