@@ -1,31 +1,19 @@
 name: Django CI
 
-on:
-  push:
-    branches: [ dev ]
-  pull_request:
-    branches: [ dev ]
+on: [push, pull_request]
 
 jobs:
   build:
 
     runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 4
-      matrix:
-        python-version: [3.6, 3.7, 3.8]
-
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v1
-      with:
-        python-version: ${{ matrix.python-version }}
     - name: Install Dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        docker-compose up -d
+        docker-compose exec -T declaration_nav pip install -r /code/requirements_dev.txt
+        docker-compose exec -T declaration_nav sh -c 'apt update && apt -y install chromium'
+        docker-compose exec -T declaration_nav sh -c 'wget http://chromedriver.storage.googleapis.com/80.0.3987.106/chromedriver_linux64.zip && unzip chromedriver_linux64.zip -d /usr/local/bin'
     - name: Run Tests
       run: |
-        python ./oroi/manage.py migrate
-        python ./oroi/manage.py test
+        docker-compose exec -T declaration_nav sh -c 'CHROME_NO_SANDBOX=True ./manage.py test'

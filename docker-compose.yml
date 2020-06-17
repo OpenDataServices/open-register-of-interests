@@ -1,0 +1,41 @@
+# This compose file is designed for automated testing only.
+# For everything else, please use
+# http://dev.oroi-proxy.docker.opendataservices.uk0.bigv.io/ instead. 
+version: "3.5"
+
+services:
+  django-postgres:
+    image: postgres:11.8
+    volumes:
+      - "django-postgres:/var/lib/postgresql/data"
+    environment:
+      POSTGRES_USER: django_db
+      POSTGRES_PASSWORD: django_db
+ 
+  elasticsearch:
+    image: elasticsearch:7.7.1
+    volumes:
+      - "elasticsearch:/usr/share/elasticsearch/data"
+    environment:
+      discovery.type: single-node
+
+  declaration_nav:
+    # image: opendataservices/open-register-of-interests:latest
+    build: .
+    command: "sh -c '
+      ./manage.py migrate &&
+      gunicorn --workers 2 --bind 0.0.0.0:8001 oroi.wsgi:application
+      '"
+    working_dir: /code/oroi/
+    environment:
+      DATABASE_URL: postgresql://django_db:django_db@django-postgres/django_db
+      ES_HOST: "elasticsearch:9200"
+    restart: always
+
+
+volumes:
+  django-postgres:
+    driver: local
+  elasticsearch:
+    driver: local
+
