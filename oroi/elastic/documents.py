@@ -59,6 +59,9 @@ class DeclarationDocument(Document):
     member_name_key = fields.KeywordField(
         attr="member_field_indexing.name", normalizer=lowercase
     )
+    member_role_key = fields.KeywordField(
+        attr="member_field_indexing.role", normalizer=lowercase
+    )
     description_key = fields.KeywordField(attr="description", normalizer=lowercase)
 
     class Django(object):

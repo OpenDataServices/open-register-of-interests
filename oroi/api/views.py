@@ -93,6 +93,7 @@ class DeclarationViewSet(DocumentViewSet):
         "member_id": "member.id",
         "body_id": "body.id",
         "member_name": "member_name_key",
+        "member_role": "member_role_key",
         "body_name": "body_name_key",
         "category": "category",
         "description": "description_key",
