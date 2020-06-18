@@ -1,8 +1,12 @@
 from django.conf import settings
 from django_elasticsearch_dsl import Document, Index, fields
-from elasticsearch_dsl import analyzer
+from elasticsearch_dsl import normalizer
 
 import db.models as db
+
+
+lowercase = normalizer("lowercase_normalizer", filter=["lowercase"])
+
 
 INDEX = Index(settings.ELASTICSEARCH_INDEX_NAMES[__name__])
 
@@ -45,12 +49,17 @@ class DeclarationDocument(Document):
         },
     )
 
-    category = fields.KeywordField(attr="category")
+    category = fields.KeywordField(attr="category", normalizer=lowercase)
 
     # Un-nested versions for faster indexing
-    body_name_key = fields.KeywordField(attr="body_field_indexing.name")
-    member_name_key = fields.KeywordField(attr="member_field_indexing.name")
-    description_key = fields.KeywordField(attr="description")
+    # and to apply lowercase
+    body_name_key = fields.KeywordField(
+        attr="body_field_indexing.name", normalizer=lowercase
+    )
+    member_name_key = fields.KeywordField(
+        attr="member_field_indexing.name", normalizer=lowercase
+    )
+    description_key = fields.KeywordField(attr="description", normalizer=lowercase)
 
     class Django(object):
         model = db.Declaration
