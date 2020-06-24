@@ -2,19 +2,22 @@ from django.conf import settings
 from django_elasticsearch_dsl import Document, Index, fields
 from elasticsearch_dsl import normalizer
 
-import db.models as db
-
-
 lowercase = normalizer("lowercase_normalizer", filter=["lowercase"])
 
+import db.models as db
 
-INDEX = Index(settings.ELASTICSEARCH_INDEX_NAMES[__name__])
+if settings.ES_DISABLE:
+    decorator = lambda x: x
+else:
+    INDEX = Index(settings.ELASTICSEARCH_INDEX_NAMES[__name__])
 
-# See Elasticsearch Indices API reference for available settings
-INDEX.settings(number_of_shards=1, number_of_replicas=1)
+    # See Elasticsearch Indices API reference for available settings
+    INDEX.settings(number_of_shards=1, number_of_replicas=1)
+
+    decorator = INDEX.doc_type
 
 
-@INDEX.doc_type
+@decorator
 class DeclarationDocument(Document):
     """ Declaration ElasticSearch doc """
 

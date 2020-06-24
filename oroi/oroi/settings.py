@@ -19,6 +19,7 @@ env = environ.Env(
     ALLOWED_HOSTS=(list, []),
     ES_HOST=(str, "localhost:9200"),
     STATIC_ROOT=(str, ""),
+    ES_DISABLE=(bool, False),
 )
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -156,6 +157,8 @@ REST_FRAMEWORK = {
 ELASTICSEARCH_DSL = {
     "default": {"hosts": env("ES_HOST")},
 }
+
+ES_DISABLE = env("ES_DISABLE")
 
 # Name of the Elasticsearch index
 ELASTICSEARCH_INDEX_NAMES = {
