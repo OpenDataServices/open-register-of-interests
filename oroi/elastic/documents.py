@@ -56,16 +56,22 @@ class DeclarationDocument(Document):
 
     # Un-nested versions for faster indexing
     # and to apply lowercase
-    body_name_key = fields.KeywordField(
+    body_name_key = fields.KeywordField(attr="body_field_indexing.name")
+    member_name_key = fields.KeywordField(attr="member_field_indexing.name")
+    member_role_key = fields.KeywordField(attr="member_field_indexing.role")
+
+    body_name_key_lower = fields.KeywordField(
         attr="body_field_indexing.name", normalizer=lowercase
     )
-    member_name_key = fields.KeywordField(
+    member_name_key_lower = fields.KeywordField(
         attr="member_field_indexing.name", normalizer=lowercase
     )
-    member_role_key = fields.KeywordField(
+    member_role_key_lower = fields.KeywordField(
         attr="member_field_indexing.role", normalizer=lowercase
     )
-    description_key = fields.KeywordField(attr="description", normalizer=lowercase)
+    description_key_lower = fields.KeywordField(
+        attr="description", normalizer=lowercase
+    )
 
     class Django(object):
         model = db.Declaration
