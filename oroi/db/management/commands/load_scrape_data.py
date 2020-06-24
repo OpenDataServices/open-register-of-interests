@@ -187,8 +187,7 @@ class Command(BaseCommand):
         spinner = Spinner()
         spinner.start()
 
-        with transaction.atomic():
-            declarations_added, declarations_failed = self.extact_data()
+        declarations_added, declarations_failed = self.extact_data()
 
         spinner.stop()
         print(
