@@ -2,6 +2,7 @@ import json
 
 import dataset
 import dateutil.parser
+import itertools
 import os
 import re
 from django.core.management.base import BaseCommand
@@ -56,62 +57,33 @@ class Command(BaseCommand):
         for table in tables:
 
             db_table = scrape_db[table]
+            last_hash = None
+            declaration_data = None
+            declaration_group = []
+            for new_declaration_data in itertools.chain(
+                scrape_db[table].all(order_by=["interest_hash", "-declared_date"]), [{}]
+            ):
+                new_hash = new_declaration_data.get("interest_hash")
 
-            declarations_seen = []
+                if last_hash is None:
+                    last_hash = new_hash
+                    declaration_data = new_declaration_data
 
-            for declaration_data in scrape_db[table]:
-
-                if declaration_data in declarations_seen:
-                    print(
-                        "Skipping, already processed: {}, '{}' from {}".format(
-                            declaration_data.get("member_name"),
-                            declaration_data.get("interest_type"),
-                            declaration_data.get("declared_date"),
-                        )
-                    )
+                elif new_hash == last_hash:
+                    declaration_group.append(new_declaration_data)
 
                 else:
-
-                    # Get everything with the same declaration_id (same person, source and interest_type)
-                    declaration_group = self.get_by_declaration_id(
-                        db_table, declaration_data.get("declaration_id")
-                    )
-
-                    declared_date = fuzzy_date_parse(
-                        declaration_data.get("declared_date")
-                    )
-                    declared_on_dates = {declared_date}
+                    declared_on_dates = set()
 
                     for dec_match in declaration_group:
+                        also_declared_date = fuzzy_date_parse(
+                            dec_match.get("declared_date")
+                        )
 
-                        if dec_match in declarations_seen:
-                            print(
-                                "Skipping, already processed: {}, '{}' from {}".format(
-                                    dec_match.get("member_name"),
-                                    dec_match.get("interest_type"),
-                                    dec_match.get("declared_date"),
-                                )
-                            )
-
-                        else:
-
-                            if dec_match.get("interest_hash") == declaration_data.get(
-                                "interest_hash"
-                            ):
-                                also_declared_date = fuzzy_date_parse(
-                                    dec_match.get("declared_date")
-                                )
-
-                                if declared_date != also_declared_date:
-                                    # Declared the same interest on a different date, use this to collapse results
-                                    declared_on_dates.add(also_declared_date)
-
-                                    # Add it to 'seen' so it doesn't get processed again
-                                    declarations_seen.append(dec_match)
+                        declared_on_dates.add(also_declared_date)
 
                     try:
                         ## create the declaration in the db
-                        # We don't use bulk insert as we need to keep sync with elasticsearch
                         declared_to, created = db.Body.objects.get_or_create(
                             name=declaration_data.get("declared_to", "Unknown body"),
                         )
@@ -130,7 +102,7 @@ class Command(BaseCommand):
                                 "interest_type", "uncategorised"
                             ),
                             description=declaration_data["description"],
-                            declared_date=list(declared_on_dates),
+                            declared_date=sorted(list(declared_on_dates)),
                             interest_date=fuzzy_date_parse(
                                 declaration_data.get("interest_date")
                             ),
@@ -138,7 +110,6 @@ class Command(BaseCommand):
                             donor=declaration_data.get("interest_from"),
                         )
 
-                        declarations_seen.append(declaration_data)
                         if dec_created:
                             declaration.fetched = make_aware(
                                 declaration_data["__last_seen"]
@@ -177,7 +148,9 @@ class Command(BaseCommand):
                         )
                         # Debug raise e
 
-            print("Declarations processed: {}".format(len(declarations_seen)))
+                    declaration_data = new_declaration_data
+                    declaration_group = [declaration_data]
+                    last_hash = new_hash
 
         return declarations_added, declarations_failed
 
