@@ -2,6 +2,7 @@ import json
 
 import dataset
 import dateutil.parser
+import datetime
 import itertools
 import os
 import re
@@ -102,7 +103,12 @@ class Command(BaseCommand):
                                 "interest_type", "uncategorised"
                             ),
                             description=declaration_data["description"],
-                            declared_date=sorted(list(declared_on_dates)),
+                            declared_date=sorted(
+                                list(declared_on_dates),
+                                key=lambda x: x
+                                if x is not None
+                                else datetime.datetime.min,
+                            ),
                             interest_date=fuzzy_date_parse(
                                 declaration_data.get("interest_date")
                             ),
