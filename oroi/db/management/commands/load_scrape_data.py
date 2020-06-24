@@ -51,6 +51,8 @@ class Command(BaseCommand):
         declarations_added = 0
         declarations_failed = 0
 
+        scrape = db.Scrape.objects.create()
+
         for table in tables:
 
             db_table = scrape_db[table]
@@ -108,7 +110,6 @@ class Command(BaseCommand):
                                     declarations_seen.append(dec_match)
 
                     try:
-                        scrape = db.Scrape.objects.create()
                         ## create the declaration in the db
                         # We don't use bulk insert as we need to keep sync with elasticsearch
                         declared_to, created = db.Body.objects.get_or_create(
