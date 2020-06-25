@@ -211,8 +211,15 @@
 
         <p class="mb-0" v-if="result.member.political_party"><strong>Political party:</strong> {{result.member.political_party}}</p>
         <p class="mb-0" v-if="result.declared_date"><strong>Declared on:</strong>
-          <template v-for="(dDate, i) in result.declared_date.sort()">{{dDate|dateString}}<template v-if="result.declared_date.length -1 != i">,</template></template>
+           <template v-for="(dDate, i) in declaredDatesCropped">
+           {{dDate|dateString}}<template v-if="i !== (declaredDatesCropped.length -1)">, </template>
+           </template>
+           <template v-if="result.declared_date.length > declaredDatesCropped.length"> <a href="#" v-on:click.prevent="showAllDates = !showAllDates">and {{result.declared_date.length -4 }} more times</a></template>
+           <ul v-show="showAllDates">
+             <li v-for="dDate in result.declared_date.sort().slice(0, result.declared_date.length-4)">{{dDate|dateString}}</li>
+           </ul>
         </p>
+
 
         <p class="mb-0" v-if="result.interest_date"><strong>Interest date:</strong> {{result.interest_date|dateString}}</p>
         <p class="mb-0" v-if="result.donor"><strong>Donor:</strong> {{result.donor}}</p>
@@ -312,6 +319,21 @@ var csvUrl = "{% url "ui:csv-download" %}"
     props: {
       result: { type: Object },
     },
+
+    data: function(){
+      let declaredDatesCropped;
+
+      if (this.result.declared_date.length > 4){
+        declaredDatesCropped = this.result.declared_date.sort().slice(this.result.declared_date.length-4);
+      } else {
+        declaredDatesCropped = this.result.declared_date;
+      }
+
+      return {
+        showAllDates: false,
+        declaredDatesCropped : declaredDatesCropped,
+      }
+    }
   });
 
   Vue.component('search', {
