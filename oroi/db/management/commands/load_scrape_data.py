@@ -103,18 +103,19 @@ class Command(BaseCommand):
                                 "interest_type", "uncategorised"
                             ),
                             description=declaration_data["description"],
-                            declared_date=sorted(
-                                list(declared_on_dates),
-                                key=lambda x: x
-                                if x is not None
-                                else datetime.datetime.min,
-                            ),
                             interest_date=fuzzy_date_parse(
                                 declaration_data.get("interest_date")
                             ),
                             source=declaration_data["source"],
                             donor=declaration_data.get("interest_from"),
                         )
+
+                        declaration.declared_date = declared_date = sorted(
+                            (declaration.declared_date or [])
+                            + [d.date() for d in declared_on_dates],
+                            key=lambda x: x if x is not None else datetime.datetime.min,
+                        )
+                        declaration.save()
 
                         if dec_created:
                             declaration.fetched = make_aware(
