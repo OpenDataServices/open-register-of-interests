@@ -237,16 +237,16 @@
           <h6>Links:</h6>
           <ul>
             <li><a class="text-right" v-bind:href="'?id='+result.id">Link to this entry</a></li>
-            <li><a v-bind:href="result.source" v-bind:title="result.source">Data source (Fetched {{result.fetched|dateString}})</a></li>
+            <li><a v-bind:href="result.source" v-bind:title="result.source" target="_blank">Data source (Fetched {{result.fetched|dateString}})</a></li>
             <template v-for="searchValue in [ result.member_name , result.donor ]">
             </template>
             <li v-for="extSearchValue in [ result.member.name , result.donor ]" v-if="extSearchValue">
 
               Search for '{{extSearchValue}}' on;
-               <a v-bind:href="'https://duckduckgo.com/?q='+extSearchValue">DuckDuckGo</a>
-               <a v-bind:href="'https://google.com/?q='+extSearchValue">Google</a>
-               <a v-bind:href="'https://aleph.occrp.org/search?filter%3Acountries=gb&sort=dates%3Adesc&limit=30&q='+extSearchValue">OCCRP Aleph</a>
-               <a v-bind:href="'https://publicwhip.org.uk/search.php?query='+extSearchValue">ThePublicWhip</a>
+               <a target="_blank" v-bind:href="'https://duckduckgo.com/?q='+extSearchValue">DuckDuckGo</a>
+               <a target="_blank" v-bind:href="'https://google.com/?q='+extSearchValue">Google</a>
+               <a target="_blank" v-bind:href="'https://aleph.occrp.org/search?filter%3Acountries=gb&sort=dates%3Adesc&limit=30&q='+extSearchValue">OCCRP Aleph</a>
+               <a target="_blank" v-bind:href="'https://publicwhip.org.uk/search.php?query='+extSearchValue">ThePublicWhip</a>
 
                <a v-if="result.source.indexOf('theyworkforyou') > 0 || result.source.indexOf('parliament.uk') > 0 " v-bind:href="'https://www.theyworkforyou.com/search/?q='+extSearchValue">TheyWorkForYou</a>
 
