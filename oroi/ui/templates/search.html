@@ -1,23 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
-<body class="bg-light">
 
-  <main role="main">
-
+<main role="main">
   <div id="search-app">
     <search></search>
   </div>
+</main>
 
-  </main>
-
-  <footer class="text-muted">
-    <div class="container">
-      <p class="float-right">
-        <a href="#">Back to top</a>
-      </p>
-    </div>
-  </footer>
-</body>
+<footer class="text-muted">
+  <div class="container">
+    <p class="float-right">
+      <a href="#">Back to top</a>
+    </p>
+  </div>
+</footer>
 
 {# The rest of this is VueJs #}
 
@@ -25,7 +21,7 @@
 <script type="text/x-template" id="search">
 <div>
     <section class="jumbotron text-center">
-      <div class="container">
+      <div class="container bg-header-icon">
         <h1 class="display-3"><a href="/">declared.</a></h1>
         <p class="lead text-muted">declared. collects declarations of interests, gifts, employment and more from elected members of bodies around the UK</p>
         <ul class="nav nav-tabs" id="myTab" role="tablist">
@@ -95,11 +91,11 @@
         <template v-for="(item, key, i) in queryObj">
           <template v-if="Array.isArray(item) && key && key != 'facet_size_all'">
             <!-- we are going to assume arrays are advanced filters for now -->
-            <span class="badge badge-dark mr-1" v-for="advancedItemValue in item">{{key|underscoresToSpace}} : {{advancedItemValue|decodeURI|underscoresToSpace}} <a class="text-reset" href="#" v-on:click.prevent="removeAdvancedFilterByKeyValue(key, advancedItemValue)">&times;</a></span>
+            <span class="badge badge-dark mr-1" v-for="advancedItemValue in item">{{key|underscoresToSpace}} : {{advancedItemValue|decodeURI|underscoresToSpace}} <a class="text-reset pl-2 font-weight-bold" href="#" v-on:click.prevent="removeAdvancedFilterByKeyValue(key, advancedItemValue)">&times;</a></span>
           </template>
           <template v-else>
-            <span class="badge badge-secondary mr-1" v-if="key != 'facet_size_all' && key.indexOf('range') < 0" >{{key|underscoresToSpace}} : {{item|decodeURI|underscoresToSpace}} <a class="text-reset" href="#" v-on:click.prevent="removeFromQuery(key)">&times;</a></span>
-            <span class="badge badge-secondary mr-1" v-if="key.indexOf('range') > 0" >{{key|underscoresToSpace}} : {{item|decodeURI|dateString('range')}} <a class="text-reset" href="#" v-on:click.prevent="removeFromQuery(key)">&times;</a></span>
+            <span class="badge badge-secondary mr-1" v-if="key != 'facet_size_all' && key.indexOf('range') < 0" >{{key|underscoresToSpace}} : {{item|decodeURI|underscoresToSpace}} <a class="text-reset pl-2 font-weight-bold" href="#" v-on:click.prevent="removeFromQuery(key)">&times;</a></span>
+            <span class="badge badge-secondary mr-1" v-if="key.indexOf('range') > 0" >{{key|underscoresToSpace}} : {{item|decodeURI|dateString('range')}} <a class="text-reset pl-2 font-weight-bold" href="#" v-on:click.prevent="removeFromQuery(key)">&times;</a></span>
           </template>
 
         </template>
@@ -111,6 +107,7 @@
       <div class="m-4 row">
           <!-- facets / aggregates -->
           <div class="col-2 mt-2">
+          <h3>Filters</h3>
             <div class="d-flex flex-column bg-light rounded">
 
               <h5>Bodies</h5>
@@ -163,6 +160,15 @@
           <div class="col">
 
             <div class="d-flex flex-column">
+              <div class="row justify-content-between">
+                <div class="col pl-0">
+                  <h3>Results</h3>
+                </div>
+                <div class="col pr-0">
+                  <!-- TODO Sorted by: selector -->
+                  <p class="text-right">Sorted by relevance</p>
+                </div>
+              </div>
 
               <div class="row">
                 <p v-if="results.length">Total of {{totalResults}} results</p>
@@ -190,7 +196,7 @@
       <div class="d-flex flex-column w-100">
         <div class="row mb-4">
           <div class="col">
-            <h4 v-bind:title="'Category: ' + result.category|underscoresToSpace">{{result.category|underscoresToSpace|capitalise}}</h4>
+            <h4 v-bind:title="'Category: ' + result.category|underscoresToSpace"><strong>Category:</strong> {{result.category|underscoresToSpace|capitalise}}</h4>
           </div>
        </div>
 
@@ -308,8 +314,8 @@
 
 <script>
 
-var apiUrl = "{% url "api:declaration-list" %}"
-var csvUrl = "{% url "ui:csv-download" %}"
+var apiUrl = "{% url "api:declaration-list" %}";
+var csvUrl = "{% url "ui:csv-download" %}";
 
 </script>
 

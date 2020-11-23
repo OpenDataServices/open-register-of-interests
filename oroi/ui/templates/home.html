@@ -1,22 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
-<body>
+{% load static %}
   <main role="main">
     <div class="jumbotron">
-      <div class="container text-center">
+      <div class="container text-center bg-header-icon">
         <h1 class="display-3"><a href="/">declared.</a></h1>
         <p class="text-muted">declared. collects declarations of interests, gifts, employment and more from elected members of bodies around the UK</p>
         <form method="GET" action="{% url 'ui:search' %}" >
-
-              <div class="input-group">
-                <input type="text" name="search" class="form-control form-control-lg" placeholder="Search for people, public bodies, and interests." />
-                <div class="input-group-append">
-                  <input type="submit" class="btn btn-primary btn-lg" value="Search" />
-                </div>
+            <div class="input-group">
+              <input type="text" name="search" class="form-control form-control-lg" placeholder="Search for people, public bodies, and interests." />
+              <div class="input-group-append">
+                <input type="submit" class="btn btn-primary btn-lg" value="Search" />
               </div>
-
+            </div>
           </div>
-
         </form>
       </div>
     </div>
@@ -43,19 +40,16 @@
           {% endfor %}
         </div>
       </div>
-
-      <hr>
     </div> <!-- /container -->
-
   </main>
 
-  <footer class="container">
+  <footer class="p-4 mt-4">
+    <div class="container">
     <p>
       <a href="https://github.com/OpenDataServices/open-register-of-interests/">declared.</a> is operated by <a
         href="https://www.opendemocracy.net/">openDemocracy</a>, built by <a href="https://opendataservices.coop">Open Data
         Services</a>, supported by <a href="https://www.nesta.org.uk/">Nesta</a>
       </p>
+      </div>
   </footer>
-
-</body>
 {% endblock %}

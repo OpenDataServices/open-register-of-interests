@@ -13,18 +13,17 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import environ
 import os
 
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 env = environ.Env(
     # set casting, default value
     DEBUG=(bool, True),
     ALLOWED_HOSTS=(list, []),
     ES_HOST=(str, "localhost:9200"),
-    STATIC_ROOT=(str, ""),
+    STATIC_ROOT=(str, os.path.join(BASE_DIR, 'static')),
     ES_DISABLE=(bool, False),
 )
-
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
