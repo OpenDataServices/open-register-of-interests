@@ -7,6 +7,6 @@ app_name = "ui"
 
 urlpatterns = [
     path("", HomeView.as_view(), name="home"),
-    path("search", TemplateView.as_view(template_name="index.html"), name="search"),
+    path("search", TemplateView.as_view(template_name="search.html"), name="search"),
     path("download_csv", CSVFromQueryDownloadView.as_view(), name="csv-download"),
 ]
