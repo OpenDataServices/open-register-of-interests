@@ -124,11 +124,11 @@ class CSVFromQueryDownloadView(View):
         return response
 
 
-class HomeView(TemplateView):
-    template_name = "home.html"
+class DataView(TemplateView):
+    template_name = "data.html"
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        context["bodies"] = db.Body.objects.all()
+        context["bodies"] = db.Body.objects.exclude(name="Unknown body")
         return context
