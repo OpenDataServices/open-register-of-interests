@@ -6,7 +6,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
-    <title>declared.</title>
+    <title>declared. {% block title %}{% endblock %}</title>
 
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
@@ -34,9 +34,61 @@
   </head>
 
   <body>
+    <div class="bg-light">
+      <nav class="navbar navbar-expand-lg navbar-light container">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+          aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <a class="nav-link" href="{% url 'ui:home' %}">Home</a>
+            <a class="nav-link" href="{% url 'ui:search' %}">Search</a>
+            <a class="nav-link" href="{% url 'ui:about' %}">About</a>
+            <a class="nav-link" href="{% url 'ui:data' %}">Data</a>
+            <a class="nav-link" href="{% url 'ui:standard' %}">Standard</a>
+            <a class="nav-link" href="{% url 'ui:get-involved' %}">Get Involved</a>
+            <a class="nav-link" href="{% url 'ui:roadmap' %}">Roadmap</a>
+          </div>
+        </div>
+      </nav>
+    </div>
 
   {% block content %}
   {% endblock %}
+
+  <footer class="p-4 mt-4 bg-light">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <p>[LICENSE STATEMENT]</p>
+        </div>
+        <div class="col">
+          <a href="https://oroi-standard.readthedocs.io/en/latest/">Data Standad</a>
+          <a href="https://github.com/OpenDataServices?q=oroi+OR+open-register-of-interests">Projects on GitHub</a>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <a  href="{% url 'ui:home' %}">Home</a>
+          <a  href="{% url 'ui:search' %}">Search</a>
+          <a  href="{% url 'ui:about' %}">About</a>
+          <a  href="{% url 'ui:data' %}">Data</a>
+          <a  href="{% url 'ui:standard' %}">Standard</a>
+          <a  href="{% url 'ui:get-involved' %}">Get Involved</a>
+          <a  href="{% url 'ui:roadmap' %}">Roadmap</a>
+        </div>
+
+        <div class="col">
+          <a href="https://github.com/OpenDataServices/open-register-of-interests/">declared.</a> is operated by <a
+            href="https://www.opendemocracy.net/">openDemocracy</a>, built by <a href="https://opendataservices.coop">Open Data
+            Services</a>, supported by <a href="https://www.nesta.org.uk/">Nesta</a>
+        </div>
+      </div>
+
+     </div>
+  </footer>
 
   </body>
 </html>

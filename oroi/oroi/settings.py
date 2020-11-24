@@ -21,7 +21,7 @@ env = environ.Env(
     DEBUG=(bool, True),
     ALLOWED_HOSTS=(list, []),
     ES_HOST=(str, "localhost:9200"),
-    STATIC_ROOT=(str, os.path.join(BASE_DIR, 'static')),
+    STATIC_ROOT=(str, os.path.join(BASE_DIR, "static")),
     ES_DISABLE=(bool, False),
 )
 

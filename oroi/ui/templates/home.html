@@ -1,8 +1,8 @@
 {% extends "base.html" %}
+{% block title %} | Home{% endblock %}
 {% block content %}
-{% load static %}
   <main role="main">
-    <div class="jumbotron">
+    <div class="jumbotron bg-light">
       <div class="container text-center bg-header-icon">
         <h1 class="display-3"><a href="/">declared.</a></h1>
         <p class="text-muted">declared. collects declarations of interests, gifts, employment and more from elected members of bodies around the UK</p>
@@ -21,35 +21,27 @@
     <div class="container">
       <!-- Example row of columns -->
       <div class="row">
-        <div class="col-md-4">
-          <h2>Download</h2>
-          <p>Download the entire dataset</p>
-          <p><a class="btn btn-secondary btn-sm" href="{% url 'ui:csv-download' %}">CSV Download &raquo;</a></p>
-          <p><a class="btn btn-secondary btn-sm" href="{% url 'api:declaration-list' %}">JSON API &raquo;</a></p>
-        </div>
-        <div class="col-md-4">
-          <h2>Explore</h2>
-          <p>Use the search box above to explore the data set</p>
-          <p><a class="btn btn-secondary btn-sm" href="{% url 'ui:search' %}" role="button">Explore &raquo;</a></p>
-        </div>
+
         <div class="col-md-4">
           <h2>About</h2>
-          <p>declared. currently includes data we gathered from:</p>
-          {% for body in bodies %}
-          <p class="mb-0">{{body.name}}</p>
-          {% endfor %}
+          <p>[ABOUT SHORT FORM]</p>
+          <p><a class="btn btn-secondary btn-sm" href="{% url 'ui:about' %}">About read more &raquo;</a></p>
         </div>
+
+        <div class="col-md-4">
+          <h2>Latest Blog</h2>
+          <p>[LATEST BLOG SHORT FORM]</p>
+          <p><a class="btn btn-secondary btn-sm" href="#[LATEST BLOG LINK]" role="button">Blog read more &raquo;</a></p>
+        </div>
+
+        <div class="col-md-4">
+          <h2>Get Involved</h2>
+          <p>[GET INVOLVED SHORT FORM]</p>
+          <p><a class="btn btn-secondary btn-sm" href="{% url 'ui:get-involved' %}">Get involved read more &raquo;</a></p>
+        </div>
+
       </div>
     </div> <!-- /container -->
   </main>
 
-  <footer class="p-4 mt-4">
-    <div class="container">
-    <p>
-      <a href="https://github.com/OpenDataServices/open-register-of-interests/">declared.</a> is operated by <a
-        href="https://www.opendemocracy.net/">openDemocracy</a>, built by <a href="https://opendataservices.coop">Open Data
-        Services</a>, supported by <a href="https://www.nesta.org.uk/">Nesta</a>
-      </p>
-      </div>
-  </footer>
 {% endblock %}

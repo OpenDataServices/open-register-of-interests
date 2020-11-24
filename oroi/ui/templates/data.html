@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %} | Data{% endblock %}
+{% block content %}
+<div class="container mt-4">
+  <h1>Data</h1>
+
+  <p>Once a month, declared. accesses a range of official websites and collects information on declared interests. We
+    also use MySociety’s parliamentary data feed, to collect information on Westminster.</p>
+
+  <p>This information is presented in a wide range of formats, from handwritten, scanned PDFs to consistent websites.
+    Our open-source software scrapes the websites, and converts the information into consistent data, using an
+    early-stage <a href="https://oroi-standard.readthedocs.io/en/latest/">data standard.</a></p>
+
+  <p>We then make the data available under an open license, so that anyone can use it, for any purpose. </p>
+
+  <p>If there’s data that you’d like to see, then there’s ways to get it added. <a href="{% url 'ui:get-involved' %}">Get involved</a></p>
+
+  <p>Currently, we scrape data from:</p>
+
+  <ul>
+    {% for body in bodies %}
+    <li>{{body.name}}</li>
+    {% endfor %}
+  </ul>
+
+  <h2>Download the entire dataset</h2>
+  <p><a class="btn btn-secondary btn-sm" href="{% url 'ui:csv-download' %}">CSV Download &raquo;</a></p>
+  <p><a class="btn btn-secondary btn-sm" href="{% url 'api:declaration-list' %}">JSON API &raquo;</a></p>
+</div>
+  {% endblock %}
