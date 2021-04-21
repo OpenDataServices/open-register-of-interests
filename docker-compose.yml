@@ -18,6 +18,10 @@ services:
       - "elasticsearch:/usr/share/elasticsearch/data"
     environment:
       discovery.type: single-node
+      # Set some env vars from https://github.com/elastic/elastic-github-actions/blob/master/elasticsearch/run-elasticsearch.sh
+      cluster.routing.allocation.disk.threshold_enabled: "false"
+      bootstrap.memory_lock: "true"
+      ES_JAVA_OPTS: "-Xms1g -Xmx1g"
 
   declaration_nav:
     # image: opendataservices/open-register-of-interests:latest
