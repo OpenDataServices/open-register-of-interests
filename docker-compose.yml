@@ -37,6 +37,13 @@ services:
       DATABASE_URL: postgresql://django_db:django_db@django-postgres/django_db
       ES_HOST: "elasticsearch:9200"
     restart: always
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+      memlock:
+        soft: -1
+        hard: -1
 
 
 volumes:
