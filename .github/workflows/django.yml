@@ -15,12 +15,10 @@ jobs:
         sudo sysctl -w vm.swappiness=1
         sudo sysctl -w fs.file-max=262144
         sudo sysctl -w vm.max_map_count=262144
-    - name: Install Dependencies
-      run: |
-        docker-compose up -d
-        docker-compose exec -T declaration_nav pip install -r /code/requirements_dev.txt
-        docker-compose exec -T declaration_nav sh -c 'apt update && apt -y install chromium'
-        docker-compose exec -T declaration_nav sh -c 'wget http://chromedriver.storage.googleapis.com/80.0.3987.106/chromedriver_linux64.zip && unzip chromedriver_linux64.zip -d /usr/local/bin'
+    - run: docker-compose up -d
+    - run: docker-compose exec -T declaration_nav pip install -r /code/requirements_dev.txt
+    - run: docker-compose exec -T declaration_nav sh -c 'apt update && apt -y install chromium'
+    - run: docker-compose exec -T declaration_nav sh -c 'wget http://chromedriver.storage.googleapis.com/80.0.3987.106/chromedriver_linux64.zip && unzip chromedriver_linux64.zip -d /usr/local/bin'
     - name: Run Tests
       run: |
         docker-compose exec -T declaration_nav sh -c 'CHROME_NO_SANDBOX=True ./manage.py test'
