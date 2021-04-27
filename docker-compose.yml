@@ -5,7 +5,7 @@ version: "3.5"
 
 services:
   django-postgres:
-    image: postgres:11.8
+    image: postgres:11.11
     volumes:
       - "django-postgres:/var/lib/postgresql/data"
     environment:
@@ -13,7 +13,7 @@ services:
       POSTGRES_PASSWORD: django_db
  
   elasticsearch:
-    image: elasticsearch:7.7.1
+    image: elasticsearch:7.12.0
     volumes:
       - "elasticsearch:/usr/share/elasticsearch/data"
     environment:
@@ -26,6 +26,8 @@ services:
       ./manage.py migrate &&
       gunicorn --workers 2 --bind 0.0.0.0:8001 oroi.wsgi:application
       '"
+    ports:
+     - "8001:8001"
     working_dir: /code/oroi/
     environment:
       DATABASE_URL: postgresql://django_db:django_db@django-postgres/django_db
