@@ -5,7 +5,7 @@ on: [push, pull_request]
 jobs:
   build:
 
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - uses: actions/checkout@v2
     - name: Install Dependencies
@@ -17,3 +17,6 @@ jobs:
     - name: Run Tests
       run: |
         docker-compose exec -T declaration_nav sh -c 'CHROME_NO_SANDBOX=True ./manage.py test'
+    - name: Cleanup
+      run: docker-compose down -v
+      if: ${{ always() }}
