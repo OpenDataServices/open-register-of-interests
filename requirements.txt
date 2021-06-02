@@ -70,7 +70,7 @@ sqlalchemy==1.4.7
     #   dataset
 sqlparse==0.4.1
     # via django
-urllib3==1.26.4
+urllib3==1.26.5
     # via elasticsearch
 
 # The following packages are considered to be unsafe in a requirements file:
