@@ -1,0 +1,54 @@
+body {
+    font-family: "Open Sans";
+    background-color: #F8F9FA;
+}
+
+h1, a {
+    color:#0059AE;
+}
+
+h1, h2, h3 {
+    font-weight: bold !important;
+}
+
+a:hover {
+    color: #027BEF;
+}
+
+.list-group-item, .border, .form-control {
+    border: 1px solid #C5CCD4;
+}
+
+.jumbotron, footer, .bg-light {
+    background-color: #F1F6FC !important;
+}
+
+.btn-primary, .badge-secondary {
+    color: white;
+    background: #0059AE;
+}
+
+.btn-primary:hover, .badge-secondary:hover {
+    background-color: #027BEF;
+}
+
+.btn-secondary {
+    background-color: unset;
+    color:#0059AE;
+}
+
+.btn-secondary:hover {
+    background-color: unset;
+    color: #027BEF;
+}
+
+.text-muted {
+    color: #80858B;
+}
+
+.bg-header-icon {
+    background-image: url("/static/img/banner-icon.svg");
+    background-repeat: no-repeat;
+    background-position-x: right;
+    background-size: 100px;
+}

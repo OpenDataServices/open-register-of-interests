@@ -1,46 +1,94 @@
+{% load static %}
 <!doctype html>
 <html lang="en">
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="">
-  <title>declared.</title>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <title>declared. {% block title %}{% endblock %}</title>
 
 
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
     integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open%20Sans">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open%20Sans">
 
-  <script
-  src="https://code.jquery.com/jquery-3.4.1.min.js"
-  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
-  crossorigin="anonymous"></script>
-  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+    <script
+    src="https://code.jquery.com/jquery-3.4.1.min.js"
+    integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+    crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
     integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
     crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
     integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
     crossorigin="anonymous"></script>
 
     <!-- development version, includes helpful console warnings -->
-  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-  <!-- production version, optimized for size and speed
-  <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <!-- production version, optimized for size and speed
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script> -->
 
 
-  <!-- it is fair to say we got no style <link href="style.css" rel="stylesheet"> -->
-  <style>
-    body {
-      font-family: "Open Sans";
-    }
-    h1 a, h1 a:hover {
-      color: black;
-    }
-  </style>
-</head>
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+  </head>
 
-{% block content %}
-{% endblock %}
+  <body>
+    <div class="bg-light">
+      <nav class="navbar navbar-expand-lg navbar-light container">
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup"
+          aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <a class="nav-link" href="{% url 'ui:home' %}">Home</a>
+            <a class="nav-link" href="{% url 'ui:search' %}">Search</a>
+            <a class="nav-link" href="{% url 'ui:about' %}">About</a>
+            <a class="nav-link" href="{% url 'ui:data' %}">Data</a>
+            <a class="nav-link" href="{% url 'ui:standard' %}">Standard</a>
+            <a class="nav-link" href="{% url 'ui:get-involved' %}">Get Involved</a>
+            <a class="nav-link" href="{% url 'ui:roadmap' %}">Roadmap</a>
+          </div>
+        </div>
+      </nav>
+    </div>
 
+  {% block content %}
+  {% endblock %}
+
+  <footer class="p-4 mt-4 bg-light">
+    <div class="container">
+      <div class="row">
+        <div class="col">
+          <p>[LICENSE STATEMENT]</p>
+        </div>
+        <div class="col">
+          <a href="https://oroi-standard.readthedocs.io/en/latest/">Data Standad</a>
+          <a href="https://github.com/OpenDataServices?q=oroi+OR+open-register-of-interests">Projects on GitHub</a>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col">
+          <a  href="{% url 'ui:home' %}">Home</a>
+          <a  href="{% url 'ui:search' %}">Search</a>
+          <a  href="{% url 'ui:about' %}">About</a>
+          <a  href="{% url 'ui:data' %}">Data</a>
+          <a  href="{% url 'ui:standard' %}">Standard</a>
+          <a  href="{% url 'ui:get-involved' %}">Get Involved</a>
+          <a  href="{% url 'ui:roadmap' %}">Roadmap</a>
+        </div>
+
+        <div class="col">
+          <a href="https://github.com/OpenDataServices/open-register-of-interests/">declared.</a> is operated by <a
+            href="https://www.opendemocracy.net/">openDemocracy</a>, built by <a href="https://opendataservices.coop">Open Data
+            Services</a>, supported by <a href="https://www.nesta.org.uk/">Nesta</a>
+        </div>
+      </div>
+
+     </div>
+  </footer>
+
+  </body>
 </html>
